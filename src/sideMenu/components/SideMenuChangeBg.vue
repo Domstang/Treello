@@ -46,7 +46,7 @@ export default {
     },
     updateTitle(title) {
       this.$emit("update-title", title);
-    }
+    },
   },
 };
 </script>

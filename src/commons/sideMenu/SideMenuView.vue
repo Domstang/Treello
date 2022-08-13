@@ -18,10 +18,10 @@
   </v-card>
 </template>
 <script>
-import SideMenuHeader from "@/sideMenu/components/SideMenuHeader";
-import SideMenuChangeBg from "@/sideMenu/components/SideMenuChangeBg";
-import SideMenuColors from "@/sideMenu/components/SideMenuColors";
-import SideMenuPhotos from "@/sideMenu/components/SideMenuPhotos";
+import SideMenuHeader from "@/commons/sideMenu/components/SideMenuHeader";
+import SideMenuChangeBg from "@/commons/sideMenu/components/SideMenuChangeBg";
+import SideMenuColors from "@/commons/sideMenu/components/SideMenuColors";
+import SideMenuPhotos from "@/commons/sideMenu/components/SideMenuPhotos";
 
 export default {
   components: {

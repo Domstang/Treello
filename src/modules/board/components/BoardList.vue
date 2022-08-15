@@ -53,7 +53,7 @@
                       <v-row
                         v-bind="attrs"
                         v-on="on"
-                        @mousedown="getCardId(card.id)"
+                        @mousedown="getCardId(card.uniqueId)"
                         @click="showTaskModal"
                       >
                         <v-col> {{ card.title }}</v-col>
@@ -70,7 +70,7 @@
                 </template>
                 <div v-if="isModalVisible">
                   <board-task-modal
-                    :cardId="card.id"
+                    :cardId="card.uniqueId"
                     @close-overlay="closeOverlay"
                     @close-modal="closeTaskModal"
                     @add-label-color="addColorLabel"
@@ -171,8 +171,9 @@ export default {
   },
   computed: {},
   methods: {
-    getCardId(cardId) {
-      this.cardId = cardId;
+    getCardId(cardUniqueId) {
+      console.log("🚀 ~ getCardId ~ cardUniqueId", cardUniqueId)
+      this.cardId = cardUniqueId;
     },
     getCardPosition() {
       this.updateTasksOrder();
@@ -199,8 +200,21 @@ export default {
       this.showFooterInput = false;
     },
     async updateTask() {
-      let card = this.cards.find((el) => el.id === this.cardId);
-      try {
+      /* let card = this.cards.find((el) => el.uniqueId === this.cardId); */
+      
+      const querySnapshot = await tasksCollection
+        .where("userId", "==", auth.currentUser.uid)
+        .get()
+        .then((snapshots) => {
+          snapshots.forEach((doc) => {
+            for (var i = 0; i < this.cards.length; i++) {
+              if (doc.data().uniqueId === this.cards[i].uniqueId){
+                doc.ref.update(this.cards[i])
+              }
+            }
+          });
+        });
+      /* try {
         let data = {
           userId: auth.currentUser.uid,
           uniqueId: card?.uniqueId,
@@ -214,7 +228,7 @@ export default {
         const doc = await tasksCollection.doc(this.cardId).update(data);
       } catch (e) {
         console.log(e);
-      }
+      } */
     },
     async updateTasksOrder() {
       const newOrder = [];
@@ -266,7 +280,7 @@ export default {
       }
     },
     addColorLabel(payload) {
-      let card = this.cards.find((el) => el.id === payload.id);
+      let card = this.cards.find((el) => el.uniqueId === payload.id);
       card.label = true;
       card.labelColor = payload.color;
       this.updateTask();

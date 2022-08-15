@@ -1,31 +1,34 @@
 <template>
-  <v-row
-    align="start"
-    justify="start"
-    class="bgPhoto pt-8"
-    :style="
-      getLastUserSelection === 'photo' || !getLastUserSelection
-        ? {
-            backgroundImage: bgPhoto
-              ? 'url(' + bgPhoto + ')'
-              : 'url(' + defaultBgImg + ')',
-          }
-        : { 'background-color': bgColor ? bgColor : '#FAFAFA' }
-    "
-  >
-    <board />
-    <div class="side-menu"><side-menu-view /></div>
-  </v-row>
+    <v-row
+      justify="start"
+      class="bgPhoto pt-8"
+      
+      :style="
+        getLastUserSelection === 'photo' || !getLastUserSelection
+          ? {
+              backgroundImage: bgPhoto
+                ? 'url(' + bgPhoto + ')'
+                : 'url(' + defaultBgImg + ')',
+            }
+          : { 'background-color': bgColor ? bgColor : '#FAFAFA' }
+      "
+    >
+      <!-- <v-progress-circular v-if="isLoading" indeterminate size="64">
+        Loading...
+      </v-progress-circular> -->
+      <board-list />
+      <div class="side-menu"><side-menu-view /></div>
+    </v-row>
 </template>
 
 <script>
 import SideMenuView from "@/commons/sideMenu/SideMenuView";
-import Board from "@/modules/board/components/BoardCard";
+import BoardList from "@/modules/board/components/BoardList";
 
 export default {
   components: {
     SideMenuView,
-    Board,
+    BoardList,
   },
   data: () => ({
     defaultBgImg: `https://images.unsplash.com/photo-1498050108023-c5249f4df085?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzNTQzMDh8MHwxfHNlYXJjaHwzfHxjb2RlfGVufDB8fHx8MTY2MDIyMDA5MQ&ixlib=rb-1.2.1&q=80`,
@@ -41,12 +44,13 @@ export default {
       return this.$store.getters["sideMenu/getLastUserSelection"];
     },
   },
+  mounted() {},
   methods: {},
 };
 </script>
 <style scoped>
 .bgPhoto {
-  height: 100%;
+  height: 120%;
   background: no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -55,7 +59,7 @@ export default {
 }
 .side-menu {
   position: absolute;
-  top: 67px;
+  top: 68px;
   right: 20px;
 }
 </style>

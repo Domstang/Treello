@@ -30,8 +30,9 @@
             <v-img
               class="color-card"
               :src="photo.urls.thumb"
+              :loading="isLoading"
               width="180px"
-              @click.stop="updateBgPhoto(photo.urls.full)"
+              @click.stop="updateBgPhoto(photo.urls.regular)"
             >
               <v-expand-transition>
                 <div
@@ -68,6 +69,7 @@ const unsplash = new createApi({
 export default {
   name: "SideMenuChangeColors",
   data: () => ({
+    isLoading: false,
     menuClosed: true,
     colors: {
       blue: "#3CA5E1",
@@ -114,6 +116,7 @@ export default {
       this.result = [];
       const result = await unsplash.search.getPhotos({
         query: userInput,
+        orientation: 'landscape',
         perPage: 10,
       });
       if (result.status === 200) {

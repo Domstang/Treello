@@ -1,6 +1,6 @@
 <template>
 <v-container >
-  <v-app-bar app color="rgba(232, 232, 232, 0.700)" dense flat outlined>
+  <v-app-bar app color="rgba(232, 232, 232, 0.700)" dense flat>
       <v-row align="center" justify="space-between">
         <v-col>
           <v-btn to="/" text>Trello</v-btn>

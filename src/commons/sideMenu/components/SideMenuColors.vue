@@ -27,6 +27,7 @@
       <v-row>
         <v-col align="center">
           <v-color-picker
+            v-click-outside="onClickOutside"
             class="color-picker"
             v-if="editColor"
             elevation="10"
@@ -74,8 +75,8 @@ export default {
     updateBgColor(val) {
       this.$store.dispatch("sideMenu/updateBgColor", val);
     },
-    outside() {
-      alert('hello')
+    onClickOutside() {
+      this.editColor = false;
     }
   },
 };

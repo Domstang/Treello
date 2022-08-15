@@ -1,5 +1,5 @@
 <template>
-  <v-card :class="menuStatus ? 'toggle-before' : 'toggle-resize'" outlined>
+  <v-card :class="menuStatus ? 'toggle-before' : 'toggle-resize'" outlined elevation="2">
     <side-menu-header
       @reset-menu="resetMenu"
       @go-start="goStart"

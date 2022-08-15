@@ -159,11 +159,7 @@ export default {
     showFooterInput: false,
     oldIndex: "",
     newIndex: "",
-    cards: [
-      /* { title: "Hello Draggable", id: "1", label: false, labelColor: ""},
-      { title: "Test Dashboard", id: "2", label: false, labelColor: "" },
-      { title: "Style registration", id: "3", label: false, labelColor: "" }, */
-    ],
+    cards: [],
   }),
 
   async mounted() {
@@ -200,8 +196,6 @@ export default {
       this.showFooterInput = false;
     },
     async updateTask() {
-      /* let card = this.cards.find((el) => el.uniqueId === this.cardId); */
-      
       const querySnapshot = await tasksCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
@@ -214,21 +208,6 @@ export default {
             }
           });
         });
-      /* try {
-        let data = {
-          userId: auth.currentUser.uid,
-          uniqueId: card?.uniqueId,
-          title: card?.title,
-          label: card?.label,
-          labelColor: card?.labelColor,
-          columnNumber: card?.columnNumber,
-          position: card?.position,
-        };
-        console.log(data);
-        const doc = await tasksCollection.doc(this.cardId).update(data);
-      } catch (e) {
-        console.log(e);
-      } */
     },
     async updateTasksOrder() {
       const newOrder = [];

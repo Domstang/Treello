@@ -12,8 +12,8 @@
             color="#000000cb"
             :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
           >
-            <v-icon small v-text="updateTitle.icon"></v-icon>
-            {{ updateTitle.text }}
+            <v-icon small v-text="title.icon"></v-icon>
+            {{ title.text }}
           </v-btn>
         </v-hover>
 
@@ -30,8 +30,8 @@
                   'background-color': hover ? '#0a69c8d1' : '#000000cb',
                 }"
               >
-                <v-icon small v-text="updateLabel.icon"></v-icon>
-                {{ updateLabel.text }}
+                <v-icon small v-text="label.icon"></v-icon>
+                {{ label.text }}
               </v-btn>
             </v-hover>
           </template>
@@ -51,6 +51,7 @@
             dark
             color="#000000cb"
             :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
+            @click.stop="removeTask(cardUniqueId)"
           >
             <v-icon small v-text="deleteTask.icon"></v-icon>
             {{ deleteTask.text }}
@@ -71,19 +72,22 @@ export default {
       { text: "purple", value: "#C377E0" },
       { text: "blue", value: "#0079BF" },
     ],
-    updateTitle: { text: "Modifier le titre", icon: "mdi-pencil-outline" },
-    updateLabel: { text: "Modifier l'étiquette", icon: "mdi-tag-outline" },
+    title: { text: "Modifier le titre", icon: "mdi-pencil-outline" },
+    label: { text: "Modifier l'étiquette", icon: "mdi-tag-outline" },
     deleteTask: { text: "Supprimer la tâche", icon: "mdi-trash-can-outline" },
   }),
   props: {
-    cardId: {
+    cardUniqueId: {
       type: String,
       require: true,
     },
   },
   methods: {
     addLabel(color) {
-      this.$emit("add-label-color", { color: color, id:this.cardId });
+      this.$emit("add-label-color", { color: color, id:this.cardUniqueId });
+    },
+    removeTask(id) {
+      this.$emit("remove-task", id);
     },
     closeModal() {
       this.$emit("close-modal");

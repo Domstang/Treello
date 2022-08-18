@@ -13,24 +13,23 @@
           : { 'background-color': bgColor ? bgColor : '#FAFAFA' }
       "
     >
-      <!-- <v-progress-circular v-if="isLoading" indeterminate size="64">
-        Loading...
-      </v-progress-circular> -->
-      <board-list />
+      <board-lists />
       <div class="side-menu"><side-menu-view /></div>
     </v-row>
 </template>
 
 <script>
 import SideMenuView from "@/commons/sideMenu/SideMenuView";
-import BoardList from "@/modules/board/components/BoardList";
+import BoardLists from "@/modules/board/components/BoardLists";
 
 export default {
   components: {
     SideMenuView,
-    BoardList,
+    BoardLists,
   },
   data: () => ({
+    lists: [],
+    listExists: false,
     defaultBgImg: `https://images.unsplash.com/photo-1498050108023-c5249f4df085?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzNTQzMDh8MHwxfHNlYXJjaHwzfHxjb2RlfGVufDB8fHx8MTY2MDIyMDA5MQ&ixlib=rb-1.2.1&q=80`,
   }),
   computed: {
@@ -42,7 +41,7 @@ export default {
     },
     getLastUserSelection() {
       return this.$store.getters["sideMenu/getLastUserSelection"];
-    },
+    }
   },
   mounted() {},
   methods: {},
@@ -50,7 +49,9 @@ export default {
 </script>
 <style scoped>
 .bgPhoto {
-  height: 120%;
+  height: 100%;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
   background: no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -59,7 +60,6 @@ export default {
 }
 .side-menu {
   position: absolute;
-  top: 68px;
   right: 20px;
 }
 </style>

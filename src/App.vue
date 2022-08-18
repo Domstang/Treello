@@ -21,9 +21,7 @@ export default {
     NavBar
   },
 
-  data: () => ({
-    defaultBgImg: ``,
-  }),
+  data: () => ({}),
   computed: {},
   mounted() {},
 };

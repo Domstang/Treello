@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import sideMenu from './modules/sideMenu';
+import boardTasks from './modules/boardTasks';
+import boardLists from './modules/boardLists';
 import * as fb from '../firebase'
 import router from '../router/index'
 
@@ -8,6 +10,8 @@ Vue.use(Vuex)
 
 const NAMESPACES = {
   sideMenu,
+  boardTasks,
+  boardLists
 };
 
 const store = new Vuex.Store({
@@ -30,8 +34,7 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    setUserProfile(state, val, authState) {
-      /* state.isAuthenticated = !state.isAuthenticated */
+    setUserProfile(state, val) {
       state.userProfile = val
     },
     setUserName(state, val) {
@@ -60,19 +63,10 @@ const store = new Vuex.Store({
         console.log("err", error);
       })
       
-      /* await fb.usersCollection.doc(this.userNamed).set({
-        name: form.name,
-        uid: user.uid
-      }) */
-      // fetch user profile
-      /* dispatch('fetchUserProfile', user) */
     },
     async login({ dispatch }, form) {
-      // sign in user
       await fb.auth.signInWithEmailAndPassword(form.email, form.password)
       router.push('/board')
-      // fetch user profile
-      /* dispatch('fetchUserProfile', user) */
     },
     
     async logout({ commit }) {

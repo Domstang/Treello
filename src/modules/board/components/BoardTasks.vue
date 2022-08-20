@@ -3,18 +3,23 @@
     class="list-group"
     ghost-class="ghost"
     :id="listId"
-    :list="cards"
-    v-model="cards"
+    :list="getAllTasks"
+    v-model="getAllTasks"
     group="tasks"
     drag-class="drag"
+    handle=".list-group-item"
     :move="checkMove"
-    @start="clearlistIdOnDrag(listId)"
-    @end="getNewIndex(cards)"
+    @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
-  >
+    ><!-- @start="clearlistIdOnDrag(listId)" -->
+
     <transition-group tag="div" type="transition" name="flip-list">
-      <div v-for="card in cards" :key="card.id">
-        <div data-no-dragscroll class="list-group-item" v-if="card.listId === listId">
+      <div v-for="card in getAllTasks" :key="card.uniqueId">
+        <div
+          data-no-dragscroll
+          class="list-group-item"
+          v-if="card.listId === listId"
+        >
           <v-menu :close-on-content-click="false" :nudge-width="0" offset-x>
             <template v-slot:activator="{ on, attrs }">
               <v-hover v-slot="{ hover }">
@@ -29,7 +34,7 @@
                     v-bind="attrs"
                     v-on="on"
                     @mousedown="getCardUniqueId(card.uniqueId)"
-                    @click="showTaskModal()"
+                    @click="showTaskMenu()"
                   >
                     <v-col> {{ card.title }}</v-col>
                     <div class="pencil-icon" v-if="hover">
@@ -41,11 +46,11 @@
                 </div>
               </v-hover>
             </template>
-            <div v-if="isModalVisible">
-              <board-task-modal
+            <div v-if="isMenuVisible">
+              <board-task-menu
                 :cardUniqueId="card.uniqueId"
                 @close-overlay="closeOverlay"
-                @close-modal="closeTaskModal"
+                @close-modal="closeTaskMenu"
                 @add-label-color="addColorLabel"
                 @remove-task="removeTask"
               />
@@ -53,14 +58,26 @@
           </v-menu>
         </div>
       </div>
+      <div
+        handle
+        v-if="!cardsPerList"
+        :key="transitionId"
+        class="mx-2 mb-2 empty-box"
+      >
+        <v-icon color="#DEDEF0" class="plus-icon" size="30" center
+          >mdi-plus-thick</v-icon
+        >
+      </div>
     </transition-group>
   </draggable>
 </template>
 <script>
 import draggable from "vuedraggable";
 import { dragscroll } from "vue-dragscroll";
-import BoardTaskModal from "./BoardTaskModal";
+import BoardTaskMenu from "./BoardTaskMenu";
 import { auth } from "@/firebase";
+import ShortUniqueId from "short-unique-id";
+import { mapGetters } from 'vuex';
 
 export default {
   display: "Footer slot",
@@ -69,14 +86,14 @@ export default {
   },
   components: {
     draggable,
-    BoardTaskModal,
+    BoardTaskMenu,
   },
   props: {
     listId: {
       type: String,
       require: true,
     },
-    cards: {
+    newTask: {
       type: Array,
       require: true,
     },
@@ -86,27 +103,36 @@ export default {
     offset: true,
     cardUniqueId: "",
     labelColor: "primary",
-    isModalVisible: false,
+    isMenuVisible: false,
     title: "À faire",
     isDragging: false,
     draggedCardId: "",
     newCardsOrder: [],
+    cardsPerList: "",
     listIdFromStart: "",
+    transitionId: "",
   }),
+  async mounted() {
+    await this.$store.dispatch("boardTasks/fetchAllTasks");
+    this.setTransitionId();
+  },
+  updated() {
+    this.cardsPerList = this.getAllTasks.filter(
+      (el) => el.listId === this.listId
+    ).length;
+  },
   computed: {
-    getAllTasks() {
-      return this.$store.getters["boardTasks/getAllTasks"];
-    }
+    ...mapGetters({
+      getAllTasks: "boardTasks/getAllTasks",
+      getNewTask: "boardTasks/getNewTask"
+    })
   },
-  /* watch: {
-    getAllTasks(newValue) {
-      this.cards.push(newValue)
-    }
-  }, */
-  beforeUpdate() {
-    console.log(this.getAllTasks)
-  },
+
   methods: {
+    setTransitionId() {
+      let uid = new ShortUniqueId({ length: 40 });
+      this.transitionId = uid();
+    },
     getCardId(cardUniqueId) {
       this.cardUniqueId = cardUniqueId;
     },
@@ -114,40 +140,38 @@ export default {
       this.draggedCardId = cardId;
     },
     clearlistIdOnDrag(listId) {
+      let uid = new ShortUniqueId({ length: 40 });
       this.listIdFromStart = listId;
-      let card = this.cards.find((el) => el.uniqueId === this.draggedCardId);
+      let card = this.getAllTasks.find((el) => el.uniqueId === this.draggedCardId);
       card.listId = "";
-      card.position = "";
       this.draggedCardId = "";
     },
     checkMove(evt) {
       let cardUniqueId = evt.draggedContext.element.uniqueId;
       let newListId = evt.relatedContext.component.$el.id;
-      let card = this.cards.find((el) => el.uniqueId === cardUniqueId);
+      let card = this.getAllTasks.find((el) => el.uniqueId === cardUniqueId);
       card.listId = newListId;
-      this.$store.dispatch("boardTasks/moveTaskInAnotherList", { 'card':card, 'id':this.listIdFromStart });
-      setTimeout(() => {
-        this.updateTasksOrder(newListId);
-      }, 500);
+      this.updateTasksOrder(newListId);
+      /* this.$store.dispatch("boardTasks/moveTaskInAnotherList", { 'card':card, 'id':this.listIdFromStart }); */
     },
     addColorLabel(label) {
-      let card = this.cards.find((el) => el.uniqueId === label.id);
+      let card = this.getAllTasks.find((el) => el.uniqueId === label.id);
       card.label = true;
       card.labelColor = label.color;
       this.$store.dispatch("boardTasks/updateTask", card);
     },
     updateTask() {
-      this.$store.dispatch("boardTasks/updateTask", this.cards);
+      this.$store.dispatch("boardTasks/updateTask", this.getAllTasks);
     },
     getNewIndex(cards) {
       this.newCardsOrder = cards;
     },
     updateTasksOrder(currentListId) {
       let newOrder = [];
-      let currentList = this.cards.filter((el) => el.listId === currentListId);
-
       setTimeout(() => {
-        let currentOrder = this.newCardsOrder.filter((el) => el.listId === currentListId);
+        let currentOrder = this.newCardsOrder.filter(
+          (el) => el.listId === currentListId
+        );
         let oldOrder = currentOrder.forEach(function (item, index) {
           let data = {
             userId: auth.currentUser.uid,
@@ -157,25 +181,25 @@ export default {
             listId: item?.listId,
             labelColor: item?.labelColor,
             columnNumber: item?.columnNumber,
-            position: index,
+            position: currentOrder.length++,
           };
           newOrder.push(data);
         });
         newOrder.filter((el) => el.listId === currentListId);
         this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
-      }, 1000);
+      }, 500);
     },
     removeTask(id) {
       this.$emit("remove-task", id);
-      this.closeTaskModal();
+      this.closeTaskMenu();
     },
-    showTaskModal() {
-      this.overlay = true;
-      this.isModalVisible = true;
+    showTaskMenu() {
+      this.$emit("show-overlay");
+      this.isMenuVisible = true;
     },
-    closeTaskModal() {
-      this.isModalVisible = false;
-      this.overlay = false;
+    closeTaskMenu() {
+      this.isMenuVisible = false;
+      this.$emit("close-overlay");
     },
     closeOverlay() {
       this.overlay = false;
@@ -184,10 +208,22 @@ export default {
 };
 </script>
 <style scoped>
+.empty-box {
+  cursor: default;
+  background-color: rgb(241, 241, 241);
+  border: 2px dashed rgb(217, 217, 217);
+  text-align: center;
+  border-radius: 3px;
+  padding: 30px 5px;
+}
+.plus-icon {
+  cursor: default;
+}
 .label {
   border-radius: 5px;
-  height: 7px !important;
+  height: 8px !important;
   margin-bottom: 5px !important;
+  opacity: 0.95;
 }
 .v-label {
   color: #213456;
@@ -207,6 +243,13 @@ export default {
   font-size: 14px;
   font-weight: 500;
   position: relative;
+  /* AVOID SELECTING TITLES ON SCROLL WITH MOUSE */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .list-group-item {
   background-color: #fff;
@@ -218,6 +261,15 @@ export default {
 }
 .list-group-item:hover {
   background-color: #f4f5f7;
+  opacity: 1 !important;
+}
+.list-group-item:focus {
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+}
+.list-group-item:active {
+  opacity: 1 !important;
+  background-color: #ffffff !important;
 }
 .pencil-icon {
   position: absolute;
@@ -236,6 +288,7 @@ export default {
 }
 .ghost > div {
   /* visibility: hidden; */
+  transform: translate(0px, 50%);
 }
 /* Draggable transition */
 .flip-list-move {

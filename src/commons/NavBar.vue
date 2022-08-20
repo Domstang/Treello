@@ -5,15 +5,17 @@
         <v-col>
           <v-btn to="/" text>Trello</v-btn>
         </v-col>
+        <v-spacer></v-spacer>
         <v-col align="right">
           <div v-if="!isLoggedIn">
             <v-btn :to="{ name: 'Login' }" text>Login</v-btn>
             <v-btn :to="{ name: 'Register' }" text>Register</v-btn>
           </div>
           <div v-else>
-            {{ currentUserName }}
+            <!-- {{ currentUserName }}
             <v-btn :to="{ name: 'Board' }" text>Board</v-btn>
-            <v-btn @click="logout" text>Logout</v-btn>
+            <v-btn @click="logout" text>Logout</v-btn> -->
+            <user-top-menu :isLoggedIn="isLoggedIn" :currentUserName="currentUserName"/>
           </div>
         </v-col>
       </v-row>
@@ -22,15 +24,18 @@
 </template>
 <script>
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import UserTopMenu from './userMenu/UserTopMenu.vue';
 
 export default {
+  components: {
+    UserTopMenu
+  },
   data: () => ({
     isLoggedIn: false,
     currentUserName: "",
   }),
   mounted() {
-    let auth;
-    auth = getAuth();
+    let auth = getAuth();
     onAuthStateChanged(auth, (user) => {
       if (user) {
         this.isLoggedIn = true;
@@ -40,11 +45,6 @@ export default {
         this.currentUserName = "";
       }
     });
-  },
-  methods: {
-    logout() {
-      this.$store.dispatch("logout");
-    },
   },
 }
 </script>

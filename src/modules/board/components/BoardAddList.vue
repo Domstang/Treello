@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto my-11 p-10 card" :class="!showForm ? 'card' : 'card-reveal'" flat>
+  <v-card class="mx-auto my-8 p-10 card" :class="!showForm ? 'card' : 'card-reveal'" flat>
     <div class="card-content">
       <v-form v-if="showForm">
         <div v-click-outside="onClickOutside">
@@ -51,32 +51,34 @@
 </template>
 <script>
 import ShortUniqueId from "short-unique-id";
-import { listsCollection, auth } from "@/firebase";
+import { auth } from "@/firebase";
 export default {
   data: () => ({
     showForm: false,
     newTaskFromInput: "",
   }),
   props: {
-    lists: {
-      type: Array,
-      require: true,
-    },
     listExists: {
       type: Boolean,
       require: true,
     },
   },
-  updated() {
+  async mounted() {
+    await this.$store.dispatch("boardLists/fetchAllLists");
     this.checkIfListExists()
+  },
+  computed: {
+    getAllLists() {
+      return this.$store.getters["boardLists/getAllLists"];
+    },
   },
   methods: {
     checkIfListExists() {
-      if(!this.listExists) this.showForm = true;
+      if(this.getAllLists.length === 0) this.showForm = true;
     },
     addNewList() {
       const uid = new ShortUniqueId({ length: 40 });
-      let position = this.lists.length;
+      let position = this.getAllLists.length;
       try {
         let newList = {
           userId: auth.currentUser.uid,
@@ -84,7 +86,6 @@ export default {
           title: this.newTaskFromInput,
           position: position,
         };
-        this.lists.push(newList);
         this.$store.dispatch("boardLists/addNewList", newList);
       } catch (e) {
         console.log(e);

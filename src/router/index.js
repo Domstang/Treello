@@ -4,7 +4,6 @@ import Home from '../modules/Home.vue'
 import Register from '../modules/auth/Register'
 import Login from '../modules/auth/Login'
 import Board from '../modules/board/BoardView'
-import Dashboard from '../modules/Dashboard'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth } from '../firebase'
 
@@ -33,14 +32,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: {
-      auth: true
-    }
   }
 ]
 

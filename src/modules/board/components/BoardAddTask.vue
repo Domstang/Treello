@@ -48,6 +48,9 @@
   </div>
 </template>
 <script>
+import ShortUniqueId from "short-unique-id";
+import { auth } from "@/firebase";
+
 export default {
   components: {},
   props: {
@@ -60,17 +63,39 @@ export default {
     showFooterInput: false,
     newTaskTitle: "",
   }),
-  mounted() {},
-  computed: {},
+  async mounted() {
+    await this.$store.dispatch("boardTasks/fetchAllTasks");
+  },
+  computed: {
+    getAllTasks() {
+      return this.$store.getters["boardTasks/getAllTasks"];
+    },
+  },
   methods: {
     addNewTask(listId) {
-      this.$emit('add-task', listId, this.newTaskTitle)
+      const uid = new ShortUniqueId({ length: 40 });
+      let position = this.getAllTasks.filter((el) => el.listId === listId).length;
+      try {
+        let newTask = {
+          userId: auth.currentUser.uid,
+          uniqueId: uid(),
+          title: this.newTaskTitle,
+          label: false,
+          labelColor: "",
+          listId: listId,
+          columnNumber: "",
+          position: ++position,
+          draggscroll: true,
+        };
+        this.$store.dispatch("boardTasks/addNewTask", newTask);
+      } catch (e) {
+        console.log(e);
+      }
       this.newTaskTitle = ""
       this.showFooterInput = false;
     },
     onClickOutside() {
       this.showFooterInput = false;
-      this.$emit('click-outside')
     },
   },
 };
@@ -81,6 +106,16 @@ export default {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   font-weight: 500;
+}
+.v-btn {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+}
+.v-label {
+  top: 10px !important;
+  font-size: 13px !important;
+  font-family: 'Roboto', sans-serif !important;
+  color: #21345699 !important;
 }
 .close-icon:hover {
   color: #156ef5 !important;

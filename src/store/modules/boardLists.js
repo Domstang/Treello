@@ -8,8 +8,8 @@ const state = {
 };
 
 const getters = {
-  getNewList: (state) => {
-    return state.newList
+  getAllLists: (state) => {
+    return state.lists
   },
   getUpdatedList: (state) => {
     return state.updatedList;
@@ -17,9 +17,29 @@ const getters = {
 }
 
 const actions = {
+  async fetchAllLists({ commit }) {
+    let lists = [];
+    try {
+      const querySnapshot = await listsCollection
+        .where("userId", "==", auth.currentUser.uid)
+        .get();
+      querySnapshot.forEach(async (doc) => {
+        lists.push({
+          id: doc.id,
+          listId: doc.data().listId,
+          title: doc.data().title,
+          position: doc.data().position,
+        });
+      });
+      lists.sort((a, b) => a.position - b.position);
+      commit('SET_All_LISTS', lists);
+    } catch (e) {
+      console.log(e);
+    }
+  },
   async addNewList({ commit }, newList) {
     try {
-      commit('setNewList', newList);
+      commit('SET_NEW_LIST', newList);
       const doc = await listsCollection.add(newList);
     } catch (error) {
       throw 'A server error has occurred';
@@ -27,17 +47,14 @@ const actions = {
   },
   async updateList({ commit }, updatedList) {
     try {
-      commit('setUpdatedList', updatedList);
       const querySnapshot = await listsCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
         .then((snapshots) => {
           snapshots.forEach((doc) => {
-            for (var i = 0; i < updatedList.length; i++) {
-              if (doc.data().uniqueId === updatedList[i].uniqueId){
-                doc.ref.update(updatedList[i])
+              if (doc.data().listId === updatedList.listId){
+                doc.ref.update(updatedList)
               }
-            }
           });
         });
     } catch (error) {
@@ -46,14 +63,13 @@ const actions = {
   },
   async updateListOrder({ commit }, updatedListsOrder) {
     try {
-      commit('setUpdatedListsOrder', updatedListsOrder);
       const querySnapshot = await listsCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
         .then((snapshots) => {
           snapshots.forEach((doc) => {
             for (var i = 0; i < updatedListsOrder.length; i++) {
-              if (doc.data().uniqueId === updatedListsOrder[i].uniqueId) {
+              if (doc.data().listId === updatedListsOrder[i].listId) {
                 doc.ref.update(updatedListsOrder[i]);
               }
             }
@@ -83,9 +99,11 @@ const actions = {
 };
 
 const mutations = {
-  setNewList(state, newList) {
-    state.newList = newList;
-    state.lists.push(newList)
+  SET_All_LISTS(state, lists) {
+    state.lists = lists;
+  },
+  SET_NEW_LIST(state, newList) {
+    state.lists.push(newList);
   },
   setUpdatedList(state, updatedList) {
     state.newList = updatedList;

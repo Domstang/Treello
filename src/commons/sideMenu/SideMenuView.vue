@@ -1,5 +1,5 @@
 <template>
-  <v-card class="my-11" :class="menuStatus ? 'toggle-before' : 'toggle-resize'" outlined elevation="2">
+  <v-card class="my-8" :class="menuStatus ? 'toggle-before' : 'toggle-resize'" outlined elevation="2">
     <side-menu-header
       @reset-menu="resetMenu"
       @go-start="goStart"
@@ -71,6 +71,10 @@ export default {
     },
     updateTitle(value) {
       this.title = value;
+    },
+    closeSideMenu() {
+      this.resetMenu();
+      this.$store.dispatch("sideMenu/sideMenuStatus", true);
     },
   },
 };

@@ -35,6 +35,6 @@ export default {
 .container {
   padding: 0 !important;
   padding: 0 !important;
-  background-color: rgb(175, 130, 216);
+  background-color: #cdcdcd;
 }
 </style>

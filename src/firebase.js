@@ -21,7 +21,7 @@ const storage = firebase.storage()
 
 // collection ref
 const usersCollection = db.collection('users')
-const gamesCollection = db.collection('games')
+const userSettingsCollection = db.collection('userSettings')
 const tasksCollection = db.collection('tasks')
 const listsCollection = db.collection('lists')
 
@@ -30,7 +30,7 @@ export {
   auth,
   storage,
   usersCollection,
-  gamesCollection,
+  userSettingsCollection,
   tasksCollection,
   listsCollection
 }

@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import { tasksCollection, auth, } from "@/firebase";
 
 const state = {
@@ -39,14 +40,14 @@ const actions = {
           });
         });
       cards.sort((a, b) => a.position - b.position)
-      commit('setAllTasks', cards);
+      commit('SET_ALL_TASKS', cards);
     } catch (e) {
       console.log(e);
     }
   },
   async addNewTask({ commit }, newTask) {
     try {
-      commit('setNewTask', newTask);
+      commit('SET_NEW_TASK', newTask);
       const doc = await tasksCollection.add(newTask);
     } catch (error) {
       throw 'A server error has occurred';
@@ -104,9 +105,7 @@ const actions = {
       throw 'A server error has occurred';
     }
   },
-  async removeTask({
-    commit
-  }, taskToRemove) {
+  async removeTask({ commit }, taskToRemove) {
     try {
       let card = taskToRemove.cards.find((el) => el.uniqueId === taskToRemove.id);
       const querySnapshot = await tasksCollection
@@ -119,6 +118,7 @@ const actions = {
             }
           });
         });
+      commit('SET_REMOVE_TASK', card);
     } catch (error) {
       throw 'A server error has occurred';
     }
@@ -126,12 +126,17 @@ const actions = {
 };
 
 const mutations = {
-  setAllTasks(state, allTasks) {
-    state.newTask = allTasks;
+  SET_ALL_TASKS(state, allTasks) {
+    state.tasks = allTasks;
   },
-  setNewTask(state, newTask) {
-    state.newTask = newTask;
-    state.tasks = newTask
+  SET_NEW_TASK(state, newTask) {
+    state.newTask = newTask
+    const index = state.tasks.length;
+    Vue.set(state.tasks, index, newTask);
+  },
+  SET_REMOVE_TASK(state, taskToRemove) {
+    const index = state.tasks.findIndex(el => el.uniqueId === taskToRemove.uniqueId)
+    Vue.delete(state.tasks, index);
   }
 };
 

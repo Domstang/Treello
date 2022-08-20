@@ -10,40 +10,34 @@
         v-model="lists"
         ghost-class="ghost"
         class="flex-container main-row"
+        handle=".cards"
         v-dragscroll:nochilddrag
+        @end="updateListOrder(lists)"
       >
         <v-col v-for="list in lists" :key="list.listId" md="2">
-          <v-card class="mx-auto my-11 cards" flat data-no-dragscroll>
-            <v-card-title
-              v-if="!showHeaderInput"
-              @click="showHeaderInput = !showHeaderInput"
-              >{{ list.title }}</v-card-title
-            >
-            <v-text-field
-              v-if="showHeaderInput"
-              v-model="cardTitle"
-              outlined
-              dense
-              background-color="#fff"
-              :placeholder="list.title"
-              v-click-outside="onClickOutside"
-              data-no-dragscroll
-            ></v-text-field>
+          <v-card handle class="mx-auto my-11 cards" flat data-no-dragscroll>
+            <board-update-list-title
+              @show-overlay="showOverlay"
+              @close-overlay="closeOverlay"
+              @update-list-title="updateListTitle"
+              :list="list"
+            />
             <board-tasks
               :listId="list.listId"
-              :cards="cards"
+              :newTask="cards"
+              @show-overlay="showOverlay"
+              @close-overlay="closeOverlay"
               @update-task="updateTask"
               @update-tasks-order="updateTasksOrder"
               @remove-task="removeTask"
             />
             <board-add-task
-              @add-task="addNewTask"
-              @click-outside="onClickOutside"
               :listId="list.listId"
+              @click-outside="onClickOutside"
             />
           </v-card>
         </v-col>
-        <v-col md="3">
+        <v-col md="2">
           <board-add-list :lists="lists" :listExists="listExists" />
         </v-col>
       </draggable>
@@ -56,6 +50,7 @@ import { dragscroll } from "vue-dragscroll";
 import { listsCollection, tasksCollection, auth } from "@/firebase";
 import BoardAddList from "@/modules/board/components/BoardAddList";
 import BoardAddTask from "@/modules/board/components/BoardAddTask";
+import BoardUpdateListTitle from "@/modules/board/components/BoardUpdateListTitle";
 import BoardTasks from "./BoardTasks";
 import ShortUniqueId from "short-unique-id";
 
@@ -69,51 +64,51 @@ export default {
     BoardTasks,
     BoardAddList,
     BoardAddTask,
+    BoardUpdateListTitle,
   },
   props: {},
   data: () => ({
     overlay: false,
     defaultCardTitle: "À faire",
-    cardTitle: "",
     showHeaderInput: false,
-    showFooterInput: false,
     colId: null,
     lists: [],
     cards: [],
     listExists: false,
   }),
-  mounted() {
-    this.getLists();
+  async mounted() {
+    await this.$store.dispatch("boardLists/fetchAllLists");
+    this.lists = this.getAllLists
+    await this.$store.dispatch("boardTasks/fetchAllTasks");
   },
   computed: {
-    getNewTask() {
-      return this.$store.getters["boardTasks/getNewTask"];
+    getAllLists() {
+      return this.$store.getters["boardLists/getAllLists"];
     },
-    getUpdatedTask() {
-      return this.$store.getters["boardTasks/getUpdatedTask"];
+    getAllTasks() {
+      return this.$store.getters["boardTasks/getAllTasks"];
     },
   },
   methods: {
-    addNewTask(listId, newTaskTitle) {
-      const uid = new ShortUniqueId({ length: 40 });
-      let position = this.cards.length;
-      try {
-        let newTask = {
+    addNewTask(val) {
+      this.cards.push(val)
+    },
+    updateListTitle(title) {
+      this.$store.dispatch("boardLists/updateList", title);
+    },
+    updateListOrder(lists) {
+      let newOrder = [];
+      let oldOrder = lists.forEach(function (item, index) {
+        let data = {
           userId: auth.currentUser.uid,
-          uniqueId: uid(),
-          title: newTaskTitle,
-          label: false,
-          labelColor: "",
-          listId: listId,
-          columnNumber: "",
-          position: position,
-          draggscroll: true
+          title: item?.title,
+          listId: item?.listId,
+          position: index,
         };
-        this.cards.push(newTask);
-        this.$store.dispatch("boardTasks/addNewTask", newTask);
-      } catch (e) {
-        console.log(e);
-      }
+        newOrder.push(data);
+      });
+      console.log("newOrder : ", newOrder);
+      this.$store.dispatch("boardLists/updateListOrder", newOrder);
     },
     updateTask() {
       this.$store.dispatch("boardTasks/updateTask", this.cards);
@@ -136,60 +131,17 @@ export default {
       this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
     },
     removeTask(id) {
-      let cards = this.cards;
+      let cards = this.getAllTasks;
       this.$store.dispatch("boardTasks/removeTask", { cards, id });
-      let updatedCards = cards.filter((data) => data.uniqueId != id);
-      this.cards = updatedCards;
     },
-    async getLists() {
-      try {
-        const querySnapshot = await listsCollection
-          .where("userId", "==", auth.currentUser.uid)
-          .get();
-        querySnapshot.forEach(async (doc) => {
-          this.lists.push({
-            id: doc.id,
-            listId: doc.data().listId,
-            title: doc.data().title,
-            position: doc.data().position,
-          });
-        });
-        this.lists.sort((a, b) => a.position - b.position);
-        this.listExists = true;
-        this.getTasks();
-      } catch (e) {
-        console.log(e);
-      }
-    },
-    async getTasks() {
-      try {
-        this.$store.dispatch("boardTasks/fetchAllTasks");
-        const querySnapshot = await tasksCollection
-          .where("userId", "==", auth.currentUser.uid)
-          .get();
-        querySnapshot.forEach(async (doc) => {
-          this.cards.push({
-            id: doc.id,
-            uniqueId: doc.data().uniqueId,
-            title: doc.data().title,
-            label: doc.data().label,
-            labelColor: doc.data().labelColor,
-            listId: doc.data().listId,
-            columnNumber: doc.data().columnNumber,
-            position: doc.data().position,
-          });
-        });
-        this.cards.sort((a, b) => a.position - b.position);
-      } catch (e) {
-        console.log(e);
-      }
+    showOverlay() {
+      this.overlay = true;
     },
     closeOverlay() {
       this.overlay = false;
     },
     onClickOutside() {
       this.showHeaderInput = false;
-      this.showFooterInput = false;
       this.overlay = false;
     },
   },
@@ -201,6 +153,10 @@ export default {
   padding-top: 0 !important;
   height: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.col-md-2 {
+  max-width: none !important;
 }
 .flex-container {
   display: flex;
@@ -209,30 +165,11 @@ export default {
   justify-content: flex-start;
   align-content: stretch;
   align-items: flex-start;
-  
 }
 .cards {
   width: 272px;
   background-color: #ebecf0;
   cursor: pointer;
-}
-.v-text-field {
-  padding: 8px;
-}
-
-.v-card__title {
-  color: #213456;
-  padding-top: 3px;
-  font-family: "Roboto", sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  /* AVOID SELECTING TITLES ON SCROLL WITH MOUSE */
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 .ghost {
   background: lightgray;

@@ -90,16 +90,27 @@ export default {
     searchForPhotos() {
       return this.result.length > 0 ? this.result : this.photos;
     },
+    getUserSettings() {
+      return this.$store.getters["sideMenu/getUserSettings"];
+    }
+  },
+  async mounted() {
+    this.fetchCollectionPhoto();
   },
   created() {
-    this.fetchCollectionPhoto();
+    
   },
   methods: {
     updateBgPhoto(userChoice) {
-      this.$store.dispatch("sideMenu/updateBgPhoto", userChoice);
+      let userBg = { 'background': userChoice , 'type': 'photo' }
+      if(this.getUserSettings.background) {
+        this.$store.dispatch("sideMenu/updateBackground", userBg);
+      } else {
+        this.$store.dispatch("sideMenu/addBg", userBg);
+      }
     },
-    fetchCollectionPhoto() {
-      fetch(this.collectionUrl + `?client_id=${this.accessKey}`)
+    async fetchCollectionPhoto() {
+      await fetch(this.collectionUrl + `?client_id=${this.accessKey}`)
         .then((response) => response.json())
         .then((json) => {
           let arr = json;
@@ -159,6 +170,7 @@ export default {
   margin-bottom: 15px;
   overflow-y: auto;
   overflow-x: hidden;
+  align-content: start;
 }
 .color-card {
   width: 180px;

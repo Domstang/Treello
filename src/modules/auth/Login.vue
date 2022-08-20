@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <v-row class="mt-16" justify="center">
     <v-col md="4">
       <v-card elevation="2">
         <v-card-title>Login</v-card-title>

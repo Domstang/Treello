@@ -1,5 +1,8 @@
+import { userSettingsCollection, auth, storage } from "@/firebase";
+
 const state = {
   menu: true,
+  background: {},
   bgColor: "",
   bgPhoto: "",
   lastUserSelection: ""
@@ -8,6 +11,9 @@ const state = {
 const getters = {
   getMenuStatus: (state) => {
     return state.menu;
+  },
+  getUserSettings: (state) => {
+    return state.background;
   },
   getBgColor: (state) => {
     return state.bgColor;
@@ -23,21 +29,50 @@ const getters = {
 const actions = {
   sideMenuStatus({ commit }, menuStatus) {
     try {
-      commit('setMenuStatus', menuStatus);
+      commit('SET_MENU_STATUS', menuStatus);
     } catch (error) {
       throw 'A server error has occurred';
     }
   },
-  updateBgColor({ commit }, color) {
+  async fetchBackground({ commit }){
+    let background = {}
     try {
-      commit('setBgColor', color);
+      const querySnapshot = await userSettingsCollection
+        .where("userId", "==", auth.currentUser.uid)
+        .get();
+      querySnapshot.forEach(async (doc) => {
+        background = {
+          userId: auth.currentUser.uid,
+          type: doc.data().type,
+          background: doc.data().background,
+        };
+      });
+      commit('SET_BACKGROUND', background);
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  async addBg({ commit }, payload) {
+    let background = { 'background': payload.background , 'type': payload.type, 'userId': auth.currentUser.uid}
+    try {
+      commit('SET_BACKGROUND', background);
+      const doc = await userSettingsCollection.add(background);
     } catch (error) {
       throw 'A server error has occurred';
     }
   },
-  updateBgPhoto({ commit }, photo) {
+  async updateBackground({ commit }, payload ) {
+    let background = { 'background': payload.background , 'type': payload.type, 'userId': auth.currentUser.uid}
     try {
-      commit('setBgPhoto', photo);
+      commit('SET_BACKGROUND', background);
+      const doc = await userSettingsCollection.get()
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          if (doc.data().userId === background.userId) {
+            doc.ref.update(background)
+          }
+        });
+      });
     } catch (error) {
       throw 'A server error has occurred';
     }
@@ -45,14 +80,16 @@ const actions = {
 };
 
 const mutations = {
-  setMenuStatus(state, menuStatus) {
+  SET_MENU_STATUS(state, menuStatus) {
     state.menu = menuStatus;
   },
-  setBgColor(state, color) {
-    state.bgColor = color;
-    state.lastUserSelection = 'color'
+  SET_BACKGROUND(state, user) {
+    state.background = user;
   },
-  setBgPhoto(state, photo) {
+  SET_BG_COLOR(state, color) {
+    state.bgColor = color;
+  },
+  SET_BG_PHOTO(state, photo) {
     state.bgPhoto = photo;
     state.lastUserSelection = 'photo'
   }

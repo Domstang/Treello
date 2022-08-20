@@ -70,10 +70,18 @@ export default {
     menuStatus() {
       return this.$store.getters["sideMenu/getMenuStatus"];
     },
+    getUserSettings() {
+      return this.$store.getters["sideMenu/getUserSettings"];
+    }
   },
   methods: {
-    updateBgColor(val) {
-      this.$store.dispatch("sideMenu/updateBgColor", val);
+    updateBgColor(userChoice) {
+      let userBg = { 'background': userChoice , 'type': 'color' }
+      if(this.getUserSettings.background) {
+        this.$store.dispatch("sideMenu/updateBackground", userBg);
+      } else {
+        this.$store.dispatch("sideMenu/addBg", userBg);
+      }
     },
     onClickOutside() {
       this.editColor = false;

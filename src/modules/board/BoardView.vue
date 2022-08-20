@@ -4,13 +4,13 @@
       class="bgPhoto pt-8"
       
       :style="
-        getLastUserSelection === 'photo' || !getLastUserSelection
+        getUserSettings.type === 'photo' || !getUserSettings.background
           ? {
-              backgroundImage: bgPhoto
-                ? 'url(' + bgPhoto + ')'
+              backgroundImage: getUserSettings.background
+                ? 'url(' + getUserSettings.background + ')'
                 : 'url(' + defaultBgImg + ')',
             }
-          : { 'background-color': bgColor ? bgColor : '#FAFAFA' }
+          : { 'background-color': getUserSettings.background ? getUserSettings.background : '#FAFAFA' }
       "
     >
       <board-lists />
@@ -41,10 +41,16 @@ export default {
     },
     getLastUserSelection() {
       return this.$store.getters["sideMenu/getLastUserSelection"];
+    },
+    getUserSettings() {
+      return this.$store.getters["sideMenu/getUserSettings"];
     }
   },
-  mounted() {},
-  methods: {},
+  async mounted() {
+    await this.$store.dispatch('sideMenu/fetchBackground')
+  },
+  methods: {
+  },
 };
 </script>
 <style scoped>

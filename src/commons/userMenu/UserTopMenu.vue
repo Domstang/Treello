@@ -66,6 +66,7 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch("logout");
+      this.$emit("logout")
     },
   },
 };

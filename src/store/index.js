@@ -4,6 +4,7 @@ import sideMenu from './modules/sideMenu';
 import boardTasks from './modules/boardTasks';
 import boardLists from './modules/boardLists';
 import * as fb from '../firebase'
+import { usersCollection, auth, storage } from "@/firebase";
 import router from '../router/index'
 
 Vue.use(Vuex)
@@ -20,7 +21,7 @@ const store = new Vuex.Store({
   state: {
     userProfile: {},
     isAuthenticated: false,
-    userName: ""
+    userName: {}
   },
   getters: {
     getIsAuthenticated: (state) => {
@@ -33,17 +34,9 @@ const store = new Vuex.Store({
       return state.userName;
     }
   },
-  mutations: {
-    setUserProfile(state, val) {
-      state.userProfile = val
-    },
-    setUserName(state, val) {
-      state.userName = val;
-      console.log("🚀 ~ setUserName ~ state.userName", state.userName)
-    },
-  },
   actions: {
-    async register({ commit}, form) {
+    /* async register({ commit}, form) {
+      console.log("🚀 ~ register ~ form", form)
       // sign up user
       await fb.auth.createUserWithEmailAndPassword(form.email, form.password)
       // create user profile object
@@ -73,7 +66,74 @@ const store = new Vuex.Store({
       await fb.auth.signOut()
       commit('setUserProfile', {})
       router.push('/')
+    } */
+    async register({ dispatch, commit}, form) {
+      // sign up user
+      await fb.auth.createUserWithEmailAndPassword(form.email, form.password)
+      .then((userCred) => {
+        const {user} = userCred
+        user.updateProfile({displayName: form.name}).then(() => {
+          fb.usersCollection.doc().set({
+            name: form.name,
+            uid: user.uid
+          })
+          /* commit('setUserName', fb.auth.currentUser.displayName) */
+        })
+        dispatch('fetchUserProfile', user)
+      })
+    },
+    async login({ dispatch }, form) {
+      // sign in user
+      const { user } = await fb.auth.signInWithEmailAndPassword(form.email, form.password)
+      
+      dispatch('fetchUserProfile', user)
+    },
+    async fetchUserProfile({ commit }, user) {
+      // fetch user profile
+      let userProfile = {}
+      await usersCollection
+      .where("uid", "==", auth.currentUser.uid)
+      .get()
+      .then(() => {
+        userProfile = auth.currentUser
+      })
+      // set user profile
+      commit('setUserProfile', userProfile)
+      if(user !== undefined) {
+        // change route or redirect
+        localStorage.setItem('userName', JSON.stringify(userProfile.displayName));
+        router.push('/board')
+      }
+    },
+    async fetchUserName({ commit }) {
+      // fetch user profile
+      let userProfile = {}
+      await usersCollection
+      .where("uid", "==", auth.currentUser.uid)
+      .get()
+      .then(() => {
+        userProfile = auth.currentUser
+      })
+      // set user profile
+      commit('setUserName', userProfile)
+    },
+    async logout({ commit }) {
+      await fb.auth.signOut()
+      commit('setUserProfile', {})
+      router.push('/')
     }
+  },
+  mutations: {
+    /* setUserProfile(state, val) {
+      state.userProfile = val
+    }, */
+    setUserProfile(state, val, authState) {
+      state.isAuthenticated = !state.isAuthenticated
+      state.userProfile = val
+    },
+    setUserName(state, val) {
+      state.userName = val;
+    },
   },
   modules: NAMESPACES,
 });

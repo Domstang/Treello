@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import { listsCollection, auth, storage } from "@/firebase";
 
 const state = {
@@ -103,7 +104,8 @@ const mutations = {
     state.lists = lists;
   },
   SET_NEW_LIST(state, newList) {
-    state.lists.push(newList);
+    const index = state.lists.length;
+    Vue.set(state.lists, index, newList);
   },
   setUpdatedList(state, updatedList) {
     state.newList = updatedList;

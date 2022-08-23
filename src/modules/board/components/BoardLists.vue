@@ -1,48 +1,42 @@
 <template>
-  <div>
-    <v-row align="start" justify="start" class="d-flex flex-nowrap main-row">
-      <v-overlay
-        :value="overlay"
-        opacity="0.6"
-        @click="closeOverlay"
-      ></v-overlay>
-      <draggable
-        v-model="lists"
-        ghost-class="ghost"
-        class="flex-container main-row"
-        handle=".cards"
-        v-dragscroll:nochilddrag
-        @end="updateListOrder(lists)"
-      >
-        <v-col v-for="list in lists" :key="list.listId" md="2">
-          <v-card handle class="mx-auto my-11 cards" flat data-no-dragscroll>
-            <board-update-list-title
-              @show-overlay="showOverlay"
-              @close-overlay="closeOverlay"
-              @update-list-title="updateListTitle"
-              :list="list"
-            />
-            <board-tasks
-              :listId="list.listId"
-              :newTask="cards"
-              @show-overlay="showOverlay"
-              @close-overlay="closeOverlay"
-              @update-task="updateTask"
-              @update-tasks-order="updateTasksOrder"
-              @remove-task="removeTask"
-            />
-            <board-add-task
-              :listId="list.listId"
-              @click-outside="onClickOutside"
-            />
-          </v-card>
-        </v-col>
-        <v-col md="2">
-          <board-add-list :lists="lists" :listExists="listExists" />
-        </v-col>
-      </draggable>
-    </v-row>
-  </div>
+  <v-row align="start" justify="start" class="d-flex flex-nowrap main-row">
+    <v-overlay :value="overlay" opacity="0.6" @click="closeOverlay"></v-overlay>
+    <draggable
+      v-model="lists"
+      ghost-class="ghost"
+      class="flex-container main-row"
+      handle=".cards"
+      v-dragscroll:nochilddrag
+      @end="updateListOrder(lists)"
+    >
+      <v-col v-for="list in lists" :key="list.listId" md="2">
+        <v-card handle class="mx-auto my-11 cards" flat data-no-dragscroll>
+          <board-update-list-title
+            @show-overlay="showOverlay"
+            @close-overlay="closeOverlay"
+            @update-list-title="updateListTitle"
+            :list="list"
+          />
+          <board-tasks
+            :listId="list.listId"
+            :newTask="cards"
+            @show-overlay="showOverlay"
+            @close-overlay="closeOverlay"
+            @update-task="updateTask"
+            @update-tasks-order="updateTasksOrder"
+            @remove-task="removeTask"
+          />
+          <board-add-task
+            :listId="list.listId"
+            @click-outside="onClickOutside"
+          />
+        </v-card>
+      </v-col>
+      <v-col md="2">
+        <board-add-list :lists="lists" :listExists="listExists" />
+      </v-col>
+    </draggable>
+  </v-row>
 </template>
 <script>
 import draggable from "vuedraggable";
@@ -78,7 +72,7 @@ export default {
   }),
   async mounted() {
     await this.$store.dispatch("boardLists/fetchAllLists");
-    this.lists = this.getAllLists
+    this.lists = this.getAllLists;
     await this.$store.dispatch("boardTasks/fetchAllTasks");
   },
   computed: {
@@ -91,7 +85,7 @@ export default {
   },
   methods: {
     addNewTask(val) {
-      this.cards.push(val)
+      this.cards.push(val);
     },
     updateListTitle(title) {
       this.$store.dispatch("boardLists/updateList", title);
@@ -152,6 +146,7 @@ export default {
   padding-left: 10px !important;
   padding-top: 10px !important;
   height: 100%;
+  max-width: none !important;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }

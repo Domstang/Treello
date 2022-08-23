@@ -41,12 +41,11 @@
 <script>
 import draggable from "vuedraggable";
 import { dragscroll } from "vue-dragscroll";
-import { listsCollection, tasksCollection, auth } from "@/firebase";
+import { auth } from "@/firebase";
 import BoardAddList from "@/modules/board/components/BoardAddList";
 import BoardAddTask from "@/modules/board/components/BoardAddTask";
 import BoardUpdateListTitle from "@/modules/board/components/BoardUpdateListTitle";
 import BoardTasks from "./BoardTasks";
-import ShortUniqueId from "short-unique-id";
 
 export default {
   display: "Footer slot",

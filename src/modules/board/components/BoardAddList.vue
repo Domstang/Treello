@@ -104,9 +104,6 @@ export default {
 .v-card__actions {
   padding: 5px !important;
 }
-/* .v-btn {
-  width: 285px !important;
-} */
 .card {
   width: 292px !important;
   margin-left: -5px !important;

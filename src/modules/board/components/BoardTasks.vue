@@ -59,6 +59,7 @@
         </div>
       </div>
       <div
+        @click.prevent="showAddTaskForm"
         handle
         v-if="!cardsPerList"
         :key="transitionId"
@@ -129,6 +130,9 @@ export default {
   },
 
   methods: {
+    showAddTaskForm() {
+      this.$eventBus.emit('show-add-task-form', this.listId);
+    },
     setTransitionId() {
       let uid = new ShortUniqueId({ length: 40 });
       this.transitionId = uid();
@@ -209,7 +213,7 @@ export default {
 </script>
 <style scoped>
 .empty-box {
-  cursor: default;
+  cursor: pointer;
   background-color: rgb(241, 241, 241);
   border: 2px dashed rgb(217, 217, 217);
   text-align: center;
@@ -217,7 +221,7 @@ export default {
   padding: 30px 5px;
 }
 .plus-icon {
-  cursor: default;
+  cursor: pointer;
 }
 .label {
   border-radius: 5px;

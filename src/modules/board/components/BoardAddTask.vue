@@ -63,8 +63,14 @@ export default {
     showFooterInput: false,
     newTaskTitle: "",
   }),
+  created() {
+    this.$eventBus.on('show-add-task-form', this.showAddTaskForm)
+  },
   async mounted() {
     await this.$store.dispatch("boardTasks/fetchAllTasks");
+  },
+  beforeDestroy(){
+    this.$eventBus.$off("show-add-task-form")
   },
   computed: {
     getAllTasks() {
@@ -72,6 +78,9 @@ export default {
     },
   },
   methods: {
+    showAddTaskForm(listId) {
+      if (this.listId ===listId) this.showFooterInput = true;
+    },
     addNewTask(listId) {
       const uid = new ShortUniqueId({ length: 40 });
       let position = this.getAllTasks.filter((el) => el.listId === listId).length;

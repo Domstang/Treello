@@ -110,10 +110,11 @@
     <v-col md="4">
       <v-card flat>
         <v-card-title>Connectez-vous pour utiliser Treello</v-card-title>
-        <v-card-subtitle class="subtitle">Identifiants démo :
-          <v-icon size="17" class="mr-1">mdi-email</v-icon><span class="mr-3">demo@demo.fr</span>
-          <v-icon size="17" class="mr-1">mdi-lock</v-icon><span>demo1234</span>
+        <v-card-subtitle class="subtitle">Compte de démo :
+          <v-icon size="17" class="mr-1">mdi-email</v-icon><span class="mr-2">{{ defaultEmail }}</span>
+          <v-icon size="17" class="mr-1">mdi-lock</v-icon><span>{{ defaultPass }}</span><br>
         </v-card-subtitle>
+        <v-btn x-small outlined text color="blue-grey" class="ml-4" @click.prevent="fillForm"><v-icon size="16" class="pr-1">mdi-file-document-edit-outline</v-icon>pré-remplir</v-btn>
         <v-card-text>
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-text-field
@@ -168,6 +169,8 @@ export default {
       isLoading: false,
       show: false,
       valid: false,
+      defaultEmail: "demo@demo.fr",
+      defaultPass: "demo1234",
       email: "",
       password: "",
       emailRules: [
@@ -192,6 +195,10 @@ export default {
         });
       }
     },
+    fillForm() {
+      this.email = this.defaultEmail;
+      this.password = this.defaultPass;
+    }
   },
 };
 </script>

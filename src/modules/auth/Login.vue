@@ -111,8 +111,8 @@
       <v-card flat>
         <v-card-title>Connectez-vous pour utiliser Treello</v-card-title>
         <v-card-subtitle class="subtitle">Identifiants démo :
-          <v-icon size="17">mdi-email</v-icon> demo@demo.fr |
-          <v-icon size="17">mdi-lock</v-icon> demo1234
+          <v-icon size="17" class="mr-1">mdi-email</v-icon><span class="mr-3">demo@demo.fr</span>
+          <v-icon size="17" class="mr-1">mdi-lock</v-icon><span>demo1234</span>
         </v-card-subtitle>
         <v-card-text>
           <v-form ref="form" v-model="valid" lazy-validation>

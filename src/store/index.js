@@ -124,9 +124,6 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    /* setUserProfile(state, val) {
-      state.userProfile = val
-    }, */
     setUserProfile(state, val, authState) {
       state.isAuthenticated = !state.isAuthenticated
       state.userProfile = val

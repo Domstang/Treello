@@ -6,11 +6,28 @@
           <span class="white--text text-h7">{{ userFirstLetter }}</span>
         </v-avatar>
       </template>
-      <v-card class="mt-2" width="200px">
-        <v-system-bar color="white" class="py-4">
+      <v-card class="mt-2" width="300px">
+        <!-- <v-system-bar color="white" class="py-4">
+          {{ currentUser.email }}
           <v-spacer></v-spacer>
           <v-icon @click="menu = false" size="22" right>mdi-close</v-icon>
-        </v-system-bar>
+        </v-system-bar> -->
+        <v-list>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{ currentUser.displayName }}</v-list-item-title>
+              <v-list-item-subtitle>{{ currentUser.email }}</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn
+                icon
+                @click="menu = false"
+              >
+                <v-icon>mdi-close-thick</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
         <v-divider></v-divider>
         <v-list dense>
           <v-list-item-group>
@@ -44,10 +61,6 @@
 <script>
 export default {
   props: {
-    currentUserName: {
-      type: String,
-      requied: true,
-    },
     isLoggedIn: {
       type: Boolean,
       requied: true,
@@ -55,15 +68,26 @@ export default {
   },
   computed: {
     userFirstLetter() {
-      return this.currentUserName.charAt(0).toUpperCase();
+      return this.getUserProfile.displayName.charAt(0).toUpperCase();
     },
+    getUserProfile() {
+      return this.$store.getters.getUserProfile
+    }
   },
   data: () => ({
     closeOnClick: false,
     closeOnContentClick: false,
+    currentUser: {},
     menu: false,
   }),
+ async mounted() {
+    await this.$store.dispatch('fetchUserProfile')
+    this.setUser()
+  },
   methods: {
+    setUser() {
+      this.currentUser =  this.getUserProfile
+    },
     logout() {
       this.$store.dispatch("logout");
       this.$emit("logout")

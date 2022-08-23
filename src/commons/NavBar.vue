@@ -15,7 +15,7 @@
             <!-- {{ currentUserName }}
             <v-btn :to="{ name: 'Board' }" text>Board</v-btn>
             <v-btn @click="logout" text>Logout</v-btn> -->
-            <user-top-menu :isLoggedIn="isLoggedIn" :currentUserName="currentUserName" @logout="logout"/>
+            <user-top-menu :isLoggedIn="isLoggedIn"/>
           </div>
         </v-col>
       </v-row>
@@ -32,40 +32,22 @@ export default {
   },
   data: () => ({
     isLoggedIn: false,
-    currentUserName: "",
+    currentUser: {},
   }),
   computed: {
     getUserProfile() {
       return this.$store.getters.getUserProfile
-    },
-    getUserName() {
-      return this.$store.getters.getUserName
-    },
-    getIsAuthenticated() {
-      return this.$store.getters.getIsAuthenticated ? true : false
     }
   },
   async mounted() {
-    /* let auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        this.isLoggedIn = true;
-        this.currentUserName = auth.currentUser.displayName;
-      } else {
-        this.isLoggedIn = false;
-        this.currentUserName = "";
-      }
-    });  */
-      await this.$store.dispatch('fetchUserProfile')
-      this.setUser()
+    await this.$store.dispatch('fetchUserProfile')
+    this.setUser()
   },
   methods: {
     async setUser() {
-      let obj = JSON.parse(localStorage.getItem('userName'));
-      console.log("🚀 ~ setUser ~ obj", obj)
       this.isLoggedIn = true;
-      let userName = await this.getUserProfile.displayName
-      this.currentUserName = userName
+      let user = await this.getUserProfile
+      this.currentUser = user
     },
     logout() {
       this.isLoggedIn = false;

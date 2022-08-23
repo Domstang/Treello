@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto my-8 p-10 card" :class="!showForm ? 'card' : 'card-reveal'" flat>
+  <v-card class="mx-auto my-8 card" outlined :class="!showForm ? 'card' : 'card-reveal'" >
     <div class="card-content">
       <v-form v-if="showForm">
         <div v-click-outside="onClickOutside">
@@ -38,6 +38,7 @@
       <div class="text-left">
         <v-btn
           v-if="!showForm"
+          large
           depressed
           class="open-btn py-5"
           @click="showForm = true"
@@ -103,6 +104,9 @@ export default {
 .v-card__actions {
   padding: 5px !important;
 }
+/* .v-btn {
+  width: 285px !important;
+} */
 .card {
   width: 292px !important;
   margin-left: -5px !important;
@@ -111,14 +115,15 @@ export default {
 }
 .card-reveal {
   width: 292px !important;
+  padding-bottom: 10px;
   margin-left: -5px !important;
   background-color: #cbcccfc8;
   cursor: pointer;
 }
 .open-btn {
-  width: 272px;
+  width: 285px;
   background-color: #cbcccfc8 !important;
-  color: #213456 !important;
+  color: #0f2956 !important;
   font-family: "Roboto", sans-serif !important;
   font-size: 12px !important;
   font-weight: 500 !important;

@@ -4,34 +4,46 @@ import Home from '../modules/Home.vue'
 import Register from '../modules/auth/Register'
 import Login from '../modules/auth/Login'
 import Board from '../modules/board/BoardView'
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { auth } from '../firebase'
+import {
+  getAuth,
+  onAuthStateChanged
+} from "firebase/auth";
+import {
+  auth
+} from '../firebase'
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
+  /* {
     path: '/',
     name: 'Home',
     component: Home
-  },
+  }, */
   {
     path: '/board',
     name: 'Board',
     component: Board,
     meta: {
-      auth: true
+      auth: true,
+      hideNavbar: false,
     }
   },
   {
     path: '/register',
     name: 'Register',
-    component: Register
+    component: Register,
+    meta: {
+      hideNavbar: true,
+    }
   },
   {
-    path: '/login',
+    path: '/',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: {
+      hideNavbar: true,
+    }
   }
 ]
 
@@ -44,7 +56,7 @@ const router = new VueRouter({
 router.beforeEach((to, form, next) => {
   const requiresAuth = to.matched.some(x => x.meta.auth)
 
-  if(requiresAuth && !auth.currentUser) {
+  if (requiresAuth && !auth.currentUser) {
     next('/login')
   } else {
     next()

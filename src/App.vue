@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <nav-bar />
+    <nav-bar v-if="!$route.meta.hideNavbar"/>
     <v-container
       fluid
       fill-height
@@ -35,6 +35,6 @@ export default {
 .container {
   padding: 0 !important;
   padding: 0 !important;
-  background-color: #cdcdcd;
+  background-color: #fff;
 }
 </style>

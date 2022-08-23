@@ -21,25 +21,26 @@
             class="color-card color-edit"
             v-if="!editColor"
             @click.stop="editColor = true"
-          ><v-icon class="icon">choose</v-icon></div
+          ><v-icon size="40" class="icon">mdi-eyedropper-variant</v-icon></div
         ></v-col>
       </v-row>
-      <v-row>
+      <v-row class="pa-7 ma-7 color-picker" v-if="editColor">
+        <v-spacer></v-spacer>
+        <v-btn icon @click.stop="onClickOutside" class="close-icon"><v-icon color="white" class="pb-4" align="end">mdi-close</v-icon></v-btn>
         <v-col align="center">
           <v-color-picker
-            v-click-outside="onClickOutside"
             class="color-picker"
-            v-if="editColor"
-            elevation="10"
+            elevation="0"
             dot-size="15"
             hide-inputs
             mode="hexa"
             swatches-max-height="100"
             v-model="colorPicker"
-            :click-dot="updateBgColor(colorPicker)"
-          >
+          ><!-- :clickup-dot="updateBgColor(colorPicker)" -->  
           </v-color-picker>
-        </v-col>
+          
+          <v-btn color="warning" class="mt-3" large block outlined @click.stop="updateBgColor(colorPicker)">Enregistrer</v-btn>
+      </v-col>
       </v-row>
     </v-list>
   </div>
@@ -50,7 +51,7 @@ export default {
   data() {
     return {
       menuClosed: true,
-      colorPicker: "#1197E4",
+      colorPicker: "#7D11E4",
       editColor: false,
       colors: {
         red: "#E83d3A",
@@ -91,8 +92,6 @@ export default {
 </script>
 <style scoped>
 .icon {
-  font-size: 30px;
-  text-decoration: underline;
   color: #fff;
   opacity: 0.8;
 }
@@ -150,5 +149,18 @@ export default {
 }
 .color-edit:hover {
   opacity: 1;
+}
+.color-picker {
+  position: relative;
+  background-color: rgba(7, 26, 36, 0.927);
+  border-radius: 7px;
+  margin-bottom: 5px;
+  margin-top: 5px
+}
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  ;
 }
 </style>

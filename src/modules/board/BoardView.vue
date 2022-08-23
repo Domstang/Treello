@@ -1,21 +1,24 @@
 <template>
-    <v-row
-      justify="start"
-      class="bgPhoto pt-8"
-      
-      :style="
-        getUserSettings.type === 'photo' || !getUserSettings.background
-          ? {
-              backgroundImage: getUserSettings.background
-                ? 'url(' + getUserSettings.background + ')'
-                : 'url(' + defaultBgImg + ')',
-            }
-          : { 'background-color': getUserSettings.background ? getUserSettings.background : '#FAFAFA' }
-      "
-    >
-      <board-lists />
-      <div class="side-menu"><side-menu-view /></div>
-    </v-row>
+  <v-row
+    justify="start"
+    class="bgPhoto pt-8"
+    :style="
+      getUserSettings.type === 'photo' || !getUserSettings.background
+        ? {
+            backgroundImage: getUserSettings.background
+              ? 'url(' + getUserSettings.background + ')'
+              : 'url(' + defaultBgImg + ')',
+          }
+        : {
+            'background-color': getUserSettings.background
+              ? getUserSettings.background
+              : '#FAFAFA',
+          }
+    "
+  >
+    <board-lists />
+    <div class="side-menu"><side-menu-view /></div>
+  </v-row>
 </template>
 
 <script>
@@ -44,13 +47,12 @@ export default {
     },
     getUserSettings() {
       return this.$store.getters["sideMenu/getUserSettings"];
-    }
+    },
   },
   async mounted() {
-    await this.$store.dispatch('sideMenu/fetchBackground')
+    await this.$store.dispatch("sideMenu/fetchBackground");
   },
-  methods: {
-  },
+  methods: {},
 };
 </script>
 <style scoped>

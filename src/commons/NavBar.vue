@@ -1,15 +1,15 @@
 <template>
 <v-container >
-  <v-app-bar app color="rgba(232, 232, 232, 0.700)" dense flat>
+  <v-app-bar app height="55" color="rgba(2, 25, 37, 0.75)" dense flat>
       <v-row align="center" justify="space-between">
         <v-col>
-          <v-btn to="/" text>Trello</v-btn>
+          <v-img width="100" src="logo.png"></v-img>
         </v-col>
         <v-spacer></v-spacer>
         <v-col align="right">
           <div v-if="!isLoggedIn">
-            <v-btn :to="{ name: 'Login' }" text>Login</v-btn>
-            <v-btn :to="{ name: 'Register' }" text>Register</v-btn>
+            <v-btn :to="{ name: 'Login' }" text>Se connecter</v-btn>
+            <v-btn :to="{ name: 'Register' }" text>S'enregistrer</v-btn>
           </div>
           <div v-else>
             <!-- {{ currentUserName }}

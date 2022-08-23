@@ -150,7 +150,7 @@ export default {
 <style scoped>
 .main-row {
   padding-left: 10px !important;
-  padding-top: 0 !important;
+  padding-top: 10px !important;
   height: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;

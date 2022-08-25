@@ -116,7 +116,6 @@ export default {
           label: item?.label,
           listId: item?.listId,
           labelColor: item?.labelColor,
-          columnNumber: item?.columnNumber,
           position: index,
         };
         newOrder.push(data);

@@ -9,10 +9,10 @@
     drag-class="drag"
     handle=".list-group-item"
     :move="checkMove"
+    @change="test($event, listId)"
     @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
-    ><!-- @start="clearlistIdOnDrag(listId)" -->
-
+    ><!-- :move="checkMove" @change="test($event, listId)" @end="getNewIndex(getAllTasks)"-->
     <transition-group tag="div" type="transition" name="flip-list">
       <div v-for="card in getAllTasks" :key="card.uniqueId">
         <div
@@ -78,7 +78,7 @@ import { dragscroll } from "vue-dragscroll";
 import BoardTaskMenu from "./BoardTaskMenu";
 import { auth } from "@/firebase";
 import ShortUniqueId from "short-unique-id";
-import { mapGetters } from 'vuex';
+import { mapGetters } from "vuex";
 
 export default {
   display: "Footer slot",
@@ -109,6 +109,7 @@ export default {
     isDragging: false,
     draggedCardId: "",
     newCardsOrder: [],
+    newListId: "",
     cardsPerList: "",
     listIdFromStart: "",
     transitionId: "",
@@ -125,13 +126,33 @@ export default {
   computed: {
     ...mapGetters({
       getAllTasks: "boardTasks/getAllTasks",
-      getNewTask: "boardTasks/getNewTask"
-    })
+      getNewTask: "boardTasks/getNewTask",
+    }),
   },
 
   methods: {
+    checkMove(evt) {
+      this.newListId = evt.relatedContext.component.$el.id;
+      this.dragCardUniqueId = evt.draggedContext.element.uniqueId;
+    },
+    test(evt, listId) {
+      if (!evt.added) {
+        this.updateTasksOrder(listId);
+      } if (evt.removed){
+        let card = this.getAllTasks.find(
+          (el) => el.uniqueId === this.dragCardUniqueId
+        );
+        let cardCopy = JSON.parse(JSON.stringify(card));
+        cardCopy.listId = this.newListId;
+        this.$store.dispatch("boardTasks/moveTaskInAnotherList", cardCopy);
+      } else {
+          return
+      }
+
+      /* this.updateTasksOrder(card.listId) */
+    },
     showAddTaskForm() {
-      this.$eventBus.emit('show-add-task-form', this.listId);
+      this.$eventBus.emit("show-add-task-form", this.listId);
     },
     setTransitionId() {
       let uid = new ShortUniqueId({ length: 40 });
@@ -146,18 +167,22 @@ export default {
     clearlistIdOnDrag(listId) {
       let uid = new ShortUniqueId({ length: 40 });
       this.listIdFromStart = listId;
-      let card = this.getAllTasks.find((el) => el.uniqueId === this.draggedCardId);
+      let card = this.getAllTasks.find(
+        (el) => el.uniqueId === this.draggedCardId
+      );
       card.listId = "";
       this.draggedCardId = "";
     },
-    checkMove(evt) {
+    /* checkMove(evt) {
+      let uid = new ShortUniqueId({ length: 40 });
       let cardUniqueId = evt.draggedContext.element.uniqueId;
       let newListId = evt.relatedContext.component.$el.id;
       let card = this.getAllTasks.find((el) => el.uniqueId === cardUniqueId);
+      card.uniqueId = uid();
       card.listId = newListId;
       this.updateTasksOrder(newListId);
-      /* this.$store.dispatch("boardTasks/moveTaskInAnotherList", { 'card':card, 'id':this.listIdFromStart }); */
-    },
+      this.$store.dispatch("boardTasks/moveTaskInAnotherList", { 'card':card, 'id':this.listIdFromStart });
+    }, */
     addColorLabel(label) {
       let card = this.getAllTasks.find((el) => el.uniqueId === label.id);
       card.label = true;
@@ -184,14 +209,13 @@ export default {
             label: item?.label,
             listId: item?.listId,
             labelColor: item?.labelColor,
-            columnNumber: item?.columnNumber,
             position: currentOrder.length++,
           };
           newOrder.push(data);
         });
         newOrder.filter((el) => el.listId === currentListId);
         this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
-      }, 500);
+      }, 100);
     },
     removeTask(id) {
       this.$emit("remove-task", id);

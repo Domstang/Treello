@@ -92,7 +92,6 @@ export default {
           label: false,
           labelColor: "",
           listId: listId,
-          columnNumber: "",
           position: ++position,
           draggscroll: true,
         };

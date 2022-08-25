@@ -35,7 +35,6 @@ const actions = {
             label: doc.data().label,
             labelColor: doc.data().labelColor,
             listId: doc.data().listId,
-            columnNumber: doc.data().columnNumber,
             position: doc.data().position,
           });
         });
@@ -69,20 +68,19 @@ const actions = {
       throw 'A server error has occurred';
     }
   },
-  async moveTaskInAnotherList({ commit }, payload) {
+  async moveTaskInAnotherList({ commit }, updatedTaskList) {
     try {
-      if (payload.card.id !== payload.id) {
-        const querySnapshot = await tasksCollection
-          .where("userId", "==", auth.currentUser.uid)
-          .get()
-          .then((snapshots) => {
-            snapshots.forEach((doc) => {
-              if (doc.data().id === payload.card.id) {
-                doc.ref.update(payload.card)
-              }
-            });
+      const querySnapshot = await tasksCollection
+        .where("userId", "==", auth.currentUser.uid)
+        .get()
+        .then((snapshots) => {
+          snapshots.forEach((doc) => {
+            if (doc.data().uniqueId === updatedTaskList.uniqueId) {
+              doc.ref.update(updatedTaskList)
+            }
           });
-      }
+          commit('SET_UPDATE_TASK_LIST', updatedTaskList);
+        });
     } catch (error) {
       throw 'A server error has occurred';
     }
@@ -100,6 +98,7 @@ const actions = {
               }
             }
           });
+          commit('SET_UPDATE_TASKS_ORDER', updatedTasksOrder);
         });
     } catch (error) {
       throw 'A server error has occurred';
@@ -128,6 +127,16 @@ const actions = {
 const mutations = {
   SET_ALL_TASKS(state, allTasks) {
     state.tasks = allTasks;
+  },
+  SET_UPDATE_TASKS_ORDER(state, tasks) {
+    console.log("🚀 ~ SET_UPDATE_TASK_ORDER ~ task", tasks)
+    const index = state.tasks.findIndex(el => el.uniqueId === tasks.uniqueId)
+    console.log("🚀 ~ SET_UPDATE_TASK_ORDER ~ index", index)
+    Vue.set(state.tasks, index, tasks);
+  },
+  SET_UPDATE_TASK_LIST(state, task) {
+    const index = state.tasks.findIndex(el => el.uniqueId === task.uniqueId)
+    Vue.set(state.tasks, index, task);
   },
   SET_NEW_TASK(state, newTask) {
     state.newTask = newTask

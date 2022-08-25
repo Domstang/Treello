@@ -21,7 +21,6 @@ const store = new Vuex.Store({
   state: {
     userProfile: {},
     isAuthenticated: false,
-    userName: {}
   },
   getters: {
     getIsAuthenticated: (state) => {
@@ -29,44 +28,9 @@ const store = new Vuex.Store({
     },
     getUserProfile: (state) => {
       return state.userProfile;
-    },
-    getUserName: (state) => {
-      return state.userName;
     }
   },
   actions: {
-    /* async register({ commit}, form) {
-      console.log("🚀 ~ register ~ form", form)
-      // sign up user
-      await fb.auth.createUserWithEmailAndPassword(form.email, form.password)
-      // create user profile object
-      .then((userCred) => {
-        const {user} = userCred
-        user.updateProfile({displayName: form.name}).then(() => {
-          commit('setUserName', fb.auth.currentUser.displayName)
-          fb.usersCollection.doc(this.userNamed).set({
-            name: form.name,
-            uid: user.uid
-          })
-        });
-      })
-      .then(router.push('/board'))
-      .catch((error) => {
-        this.error = error.message;
-        console.log("err", error);
-      })
-      
-    },
-    async login({ dispatch }, form) {
-      await fb.auth.signInWithEmailAndPassword(form.email, form.password)
-      router.push('/board')
-    },
-    
-    async logout({ commit }) {
-      await fb.auth.signOut()
-      commit('setUserProfile', {})
-      router.push('/')
-    } */
     async register({ dispatch, commit}, form) {
       // sign up user
       await fb.auth.createUserWithEmailAndPassword(form.email, form.password)
@@ -77,7 +41,6 @@ const store = new Vuex.Store({
             name: form.name,
             uid: user.uid
           })
-          /* commit('setUserName', fb.auth.currentUser.displayName) */
         })
         dispatch('fetchUserProfile', user)
       })
@@ -91,31 +54,24 @@ const store = new Vuex.Store({
     async fetchUserProfile({ commit }, user) {
       // fetch user profile
       let userProfile = {}
-      await usersCollection
-      .where("uid", "==", auth.currentUser.uid)
-      .get()
-      .then(() => {
-        userProfile = auth.currentUser
-      })
-      // set user profile
-      commit('setUserProfile', userProfile)
-      if(user !== undefined) {
-        // change route or redirect
-        localStorage.setItem('userName', JSON.stringify(userProfile.displayName));
-        router.push('/board')
+      try {
+        await usersCollection
+        .where("uid", "==", auth.currentUser.uid)
+        .get()
+        .then(() => {
+          userProfile = auth.currentUser
+        })
+        // set user profile
+        commit('setUserProfile', userProfile)
+        if(user !== undefined) {
+          // change route or redirect
+          router.push('/board')
+        }
+      } catch (e) {
+        if (auth.currentUser) {
+          console.log(e);
+        }
       }
-    },
-    async fetchUserName({ commit }) {
-      // fetch user profile
-      let userProfile = {}
-      await usersCollection
-      .where("uid", "==", auth.currentUser.uid)
-      .get()
-      .then(() => {
-        userProfile = auth.currentUser
-      })
-      // set user profile
-      commit('setUserName', userProfile)
     },
     async logout({ commit }) {
       await fb.auth.signOut()
@@ -127,10 +83,7 @@ const store = new Vuex.Store({
     setUserProfile(state, val, authState) {
       state.isAuthenticated = !state.isAuthenticated
       state.userProfile = val
-    },
-    setUserName(state, val) {
-      state.userName = val;
-    },
+    }
   },
   modules: NAMESPACES,
 });

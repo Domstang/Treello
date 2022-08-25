@@ -4,7 +4,6 @@
     ghost-class="ghost"
     :id="listId"
     :list="getAllTasks"
-    v-model="getAllTasks"
     group="tasks"
     drag-class="drag"
     handle=".list-group-item"
@@ -12,7 +11,7 @@
     @change="test($event, listId)"
     @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
-    ><!-- :move="checkMove" @change="test($event, listId)" @end="getNewIndex(getAllTasks)"-->
+    ><!-- v-model="getAllTasks" -->
     <transition-group tag="div" type="transition" name="flip-list">
       <div v-for="card in getAllTasks" :key="card.uniqueId">
         <div

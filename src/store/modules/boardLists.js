@@ -35,7 +35,9 @@ const actions = {
       lists.sort((a, b) => a.position - b.position);
       commit('SET_All_LISTS', lists);
     } catch (e) {
-      console.log(e);
+      if (auth.currentUser) {
+        console.log(e);
+      }
     }
   },
   async addNewList({ commit }, newList) {

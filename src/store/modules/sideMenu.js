@@ -49,7 +49,9 @@ const actions = {
       });
       commit('SET_BACKGROUND', background);
     } catch (e) {
-      console.log(e);
+      if (auth.currentUser) {
+        console.log(e);
+      }
     }
   },
   async addBg({ commit }, payload) {

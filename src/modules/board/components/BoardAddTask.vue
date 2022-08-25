@@ -69,9 +69,6 @@ export default {
   async mounted() {
     await this.$store.dispatch("boardTasks/fetchAllTasks");
   },
-  beforeDestroy(){
-    this.$eventBus.$off("show-add-task-form")
-  },
   computed: {
     getAllTasks() {
       return this.$store.getters["boardTasks/getAllTasks"];
@@ -79,7 +76,7 @@ export default {
   },
   methods: {
     showAddTaskForm(listId) {
-      if (this.listId ===listId) this.showFooterInput = true;
+      if (this.listId === listId) this.showFooterInput = true;
     },
     addNewTask(listId) {
       const uid = new ShortUniqueId({ length: 40 });

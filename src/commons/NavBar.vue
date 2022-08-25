@@ -3,7 +3,7 @@
   <v-app-bar app height="55" color="rgba(2, 25, 37, 0.75)" dense flat>
       <v-row align="center" justify="space-between">
         <v-col>
-          <v-img width="100" src="logo.png"></v-img> Treello
+          <v-img width="100" src="logo.png"></v-img>
         </v-col>
         <v-spacer></v-spacer>
         <v-col align="right">

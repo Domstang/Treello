@@ -41,7 +41,9 @@ const actions = {
       cards.sort((a, b) => a.position - b.position)
       commit('SET_ALL_TASKS', cards);
     } catch (e) {
-      console.log(e);
+      if (auth.currentUser) {
+        console.log(e);
+      }
     }
   },
   async addNewTask({ commit }, newTask) {
@@ -129,9 +131,7 @@ const mutations = {
     state.tasks = allTasks;
   },
   SET_UPDATE_TASKS_ORDER(state, tasks) {
-    console.log("🚀 ~ SET_UPDATE_TASK_ORDER ~ task", tasks)
     const index = state.tasks.findIndex(el => el.uniqueId === tasks.uniqueId)
-    console.log("🚀 ~ SET_UPDATE_TASK_ORDER ~ index", index)
     Vue.set(state.tasks, index, tasks);
   },
   SET_UPDATE_TASK_LIST(state, task) {

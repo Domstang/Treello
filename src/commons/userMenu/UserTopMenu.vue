@@ -7,11 +7,6 @@
         </v-avatar>
       </template>
       <v-card class="mt-2" width="300px">
-        <!-- <v-system-bar color="white" class="py-4">
-          {{ currentUser.email }}
-          <v-spacer></v-spacer>
-          <v-icon @click="menu = false" size="22" right>mdi-close</v-icon>
-        </v-system-bar> -->
         <v-list>
           <v-list-item>
             <v-list-item-content>

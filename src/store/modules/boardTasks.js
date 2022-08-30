@@ -2,16 +2,12 @@ import Vue from 'vue'
 import { tasksCollection, auth, } from "@/firebase";
 
 const state = {
-  newTask: {},
   tasks: [],
   updatedTask: [],
   updatedTasksOrder: []
 };
 
 const getters = {
-  getNewTask: (state) => {
-    return state.newTask;
-  },
   getUpdatedTask: (state) => {
     return state.updatedTask;
   },
@@ -70,18 +66,18 @@ const actions = {
       throw 'A server error has occurred';
     }
   },
-  async moveTaskInAnotherList({ commit }, updatedTaskList) {
+  async moveTaskInAnotherList({ commit }, payload) {
     try {
       const querySnapshot = await tasksCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
         .then((snapshots) => {
           snapshots.forEach((doc) => {
-            if (doc.data().uniqueId === updatedTaskList.uniqueId) {
-              doc.ref.update(updatedTaskList)
+            if (doc.data().uniqueId === payload.cardCopy.uniqueId) {
+              doc.ref.update(payload.cardCopy)
             }
           });
-          commit('SET_UPDATE_TASK_LIST', updatedTaskList);
+          commit('SET_UPDATE_TASK_LIST', payload);
         });
     } catch (error) {
       throw 'A server error has occurred';
@@ -89,6 +85,7 @@ const actions = {
   },
   async updateTaskOrder({ commit }, updatedTasksOrder) {
     try {
+      commit('SET_UPDATE_TASKS_ORDER', updatedTasksOrder);
       const querySnapshot = await tasksCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
@@ -100,7 +97,7 @@ const actions = {
               }
             }
           });
-          commit('SET_UPDATE_TASKS_ORDER', updatedTasksOrder);
+          
         });
     } catch (error) {
       throw 'A server error has occurred';
@@ -132,14 +129,14 @@ const mutations = {
   },
   SET_UPDATE_TASKS_ORDER(state, tasks) {
     const index = state.tasks.findIndex(el => el.uniqueId === tasks.uniqueId)
-    Vue.set(state.tasks, index, tasks);
+    Vue.set(state.tasks, index, tasks)
   },
-  SET_UPDATE_TASK_LIST(state, task) {
-    const index = state.tasks.findIndex(el => el.uniqueId === task.uniqueId)
-    Vue.set(state.tasks, index, task);
+  SET_UPDATE_TASK_LIST(state, payload) {
+    const index = payload.cardIndex
+    console.log("🚀 ~ SET_UPDATE_TASK_LIST ~ state.tasks", Vue.set(state.tasks, index, payload.cardCopy))
+    Vue.set(state.tasks, index, payload.cardCopy);
   },
   SET_NEW_TASK(state, newTask) {
-    state.newTask = newTask
     const index = state.tasks.length;
     Vue.set(state.tasks, index, newTask);
   },

@@ -8,12 +8,12 @@
     drag-class="drag"
     handle=".list-group-item"
     :move="checkMove"
-    @change="test($event, listId)"
+    @change="updateTaskList($event, listId)"
     @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
-    ><!-- v-model="getAllTasks" -->
+    >
     <transition-group tag="div" type="transition" name="flip-list">
-      <div v-for="card in getAllTasks" :key="card.uniqueId">
+      <div v-for="(card, index) in getAllTasks" :key="index">
         <div
           data-no-dragscroll
           class="list-group-item"
@@ -134,21 +134,21 @@ export default {
       this.newListId = evt.relatedContext.component.$el.id;
       this.dragCardUniqueId = evt.draggedContext.element.uniqueId;
     },
-    test(evt, listId) {
+    async updateTaskList(evt, listId) {
       if (!evt.added) {
         this.updateTasksOrder(listId);
       } if (evt.removed){
         let card = this.getAllTasks.find(
           (el) => el.uniqueId === this.dragCardUniqueId
         );
+        let cardIndex = this.getAllTasks.indexOf(card);
         let cardCopy = JSON.parse(JSON.stringify(card));
         cardCopy.listId = this.newListId;
-        this.$store.dispatch("boardTasks/moveTaskInAnotherList", cardCopy);
+        this.updateTasksOrder(cardCopy.listId)
+        await this.$store.dispatch("boardTasks/moveTaskInAnotherList", { cardCopy, cardIndex});
       } else {
           return
       }
-
-      /* this.updateTasksOrder(card.listId) */
     },
     showAddTaskForm() {
       this.$eventBus.emit("show-add-task-form", this.listId);
@@ -172,16 +172,6 @@ export default {
       card.listId = "";
       this.draggedCardId = "";
     },
-    /* checkMove(evt) {
-      let uid = new ShortUniqueId({ length: 40 });
-      let cardUniqueId = evt.draggedContext.element.uniqueId;
-      let newListId = evt.relatedContext.component.$el.id;
-      let card = this.getAllTasks.find((el) => el.uniqueId === cardUniqueId);
-      card.uniqueId = uid();
-      card.listId = newListId;
-      this.updateTasksOrder(newListId);
-      this.$store.dispatch("boardTasks/moveTaskInAnotherList", { 'card':card, 'id':this.listIdFromStart });
-    }, */
     addColorLabel(label) {
       let card = this.getAllTasks.find((el) => el.uniqueId === label.id);
       card.label = true;
@@ -214,7 +204,7 @@ export default {
         });
         newOrder.filter((el) => el.listId === currentListId);
         this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
-      }, 100);
+      }, 500);
     },
     removeTask(id) {
       this.$emit("remove-task", id);

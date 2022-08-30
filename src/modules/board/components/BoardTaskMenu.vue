@@ -1,21 +1,66 @@
 <template>
   <div>
-    <v-icon @click="closeModal" class="close-icon"
-      >mdi-close</v-icon
-    >
+    <v-icon @click="closeModal" class="close-icon">mdi-close</v-icon>
     <v-row class="row-buttons">
       <v-col sm="4">
-        <v-hover v-slot="{ hover }">
-          <v-btn
-            small
-            dark
-            color="#000000cb"
-            :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
-          >
-            <v-icon small v-text="title.icon"></v-icon>
-            {{ title.text }}
-          </v-btn>
-        </v-hover>
+        <v-menu
+          v-model="inputTitleMenu"
+          :close-on-content-click="false"
+          offset-y
+        >
+          <template v-slot:activator="{ attrs, on }">
+            <v-hover v-slot="{ hover }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                small
+                dark
+                class="btn-menu"
+                color="#000000cb"
+                :style="{
+                  'background-color': hover ? '#0a69c8d1' : '#000000cb',
+                }"
+              >
+                <v-icon small v-text="title.icon"></v-icon>
+                {{ title.text }}
+              </v-btn>
+            </v-hover>
+          </template>
+
+          <v-card class="color-label-card">
+            <v-card-title class="color-label-title"
+              >Modifier le titre</v-card-title
+            >
+            <v-divider></v-divider>
+            <v-text-field
+              v-model="titleUpdated"
+              outlined
+              dense
+              clearable
+              background-color="#fff"
+              :placeholder="card.title"
+              @keydown.enter.exact.prevent="updateTitle(titleUpdated)"
+              data-no-dragscroll
+            ></v-text-field>
+            <div class="text-center">
+              <v-btn
+                class="ma-1"
+                small
+                plain
+                text
+                @click="inputTitleMenu = false"
+                >Annuler</v-btn
+              >
+              <v-btn
+                class="ma-1"
+                small
+                color="primary"
+                @click="updateTitle(titleUpdated)"
+                >Enregistrer</v-btn
+              >
+            </div>
+          </v-card>
+        </v-menu>
 
         <v-menu offset-y>
           <template v-slot:activator="{ attrs, on }">
@@ -24,6 +69,7 @@
                 v-bind="attrs"
                 v-on="on"
                 small
+                class="btn-menu"
                 dark
                 color="#000000cb"
                 :style="{
@@ -40,7 +86,11 @@
             <v-card-title class="color-label-title">Étiquettes</v-card-title>
             <v-divider></v-divider>
             <div v-for="labelColor in labelColors" :key="labelColor.value">
-              <v-system-bar dark :color="labelColor.value" @click.stop="addLabel(labelColor.value)"></v-system-bar>
+              <v-system-bar
+                dark
+                :color="labelColor.value"
+                @click.stop="addLabel(labelColor.value)"
+              ></v-system-bar>
             </div>
           </v-card>
         </v-menu>
@@ -49,9 +99,10 @@
           <v-btn
             small
             dark
+            class="btn-menu"
             color="#000000cb"
             :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
-            @click.stop="removeTask(cardUniqueId)"
+            @click.stop="alert = true"
           >
             <v-icon small v-text="deleteTask.icon"></v-icon>
             {{ deleteTask.text }}
@@ -59,6 +110,24 @@
         </v-hover>
       </v-col>
     </v-row>
+    <div v-if="alert">
+      <v-alert type="info">
+        Êtes-vous sûr de vouloir supprimer cette carte ? Cette action est
+        définitive !
+        <div class="text-center mt-3">
+          <v-btn class="ma-1" small plain text @click="alert = false"
+            >Annuler</v-btn
+          >
+          <v-btn
+            class="ma-1"
+            small
+            color="error"
+            @click="removeTask(cardUniqueId)"
+            >Supprimer</v-btn
+          >
+        </div>
+      </v-alert>
+    </div>
   </div>
 </template>
 <script>
@@ -75,16 +144,35 @@ export default {
     title: { text: "Modifier le titre", icon: "mdi-pencil-outline" },
     label: { text: "Modifier l'étiquette", icon: "mdi-tag-outline" },
     deleteTask: { text: "Supprimer la tâche", icon: "mdi-trash-can-outline" },
+    inputTitleMenu: false,
+    titleUpdated: "",
+    alert: false,
   }),
   props: {
     cardUniqueId: {
       type: String,
       require: true,
     },
+    card: {
+      type: Object,
+      require: true,
+    },
+  },
+  mounted() {
+    this.titleUpdated = this.card.title;
   },
   methods: {
+    updateTitle(titleUpdated) {
+      if (!titleUpdated) {
+        return;
+      } else {
+        this.card.title = titleUpdated;
+        this.$store.dispatch("boardTasks/updateTask", this.card);
+        this.inputTitleMenu = false;
+      }
+    },
     addLabel(color) {
-      this.$emit("add-label-color", { color: color, id:this.cardUniqueId });
+      this.$emit("add-label-color", { color: color, id: this.cardUniqueId });
     },
     removeTask(id) {
       this.$emit("remove-task", id);
@@ -112,7 +200,7 @@ export default {
 }
 .color-label-title {
   display: block !important;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 16px;
   padding: 5px;
   text-align: center;
@@ -126,7 +214,7 @@ export default {
   height: 30px !important;
   border-radius: 3px;
   margin-bottom: 5px !important;
-  transition: all .1s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 .v-system-bar:hover {
   transition-duration: 0.2s;
@@ -140,13 +228,13 @@ export default {
   background-color: transparent !important;
   background: none !important;
 }
-.v-btn {
+.btn-menu {
   text-transform: none;
   font-size: 13px;
   padding-right: 15px !important;
   margin-bottom: 5px;
 }
-.v-btn:hover {
+.btn-menu:hover {
   border-radius: 5px;
   -webkit-transform: translateX(5px);
   transform: translateX(5px);

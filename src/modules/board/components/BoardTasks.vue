@@ -48,6 +48,7 @@
             <div v-if="isMenuVisible">
               <board-task-menu
                 :cardUniqueId="card.uniqueId"
+                :card="card"
                 @close-overlay="closeOverlay"
                 @close-modal="closeTaskMenu"
                 @add-label-color="addColorLabel"

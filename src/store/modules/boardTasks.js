@@ -128,12 +128,12 @@ const mutations = {
     state.tasks = allTasks;
   },
   SET_UPDATE_TASKS_ORDER(state, tasks) {
+    console.log("🚀 ~ SET_UPDATE_TASKS_ORDER ~ tasks", tasks)
     const index = state.tasks.findIndex(el => el.uniqueId === tasks.uniqueId)
     Vue.set(state.tasks, index, tasks)
   },
   SET_UPDATE_TASK_LIST(state, payload) {
     const index = payload.cardIndex
-    console.log("🚀 ~ SET_UPDATE_TASK_LIST ~ state.tasks", Vue.set(state.tasks, index, payload.cardCopy))
     Vue.set(state.tasks, index, payload.cardCopy);
   },
   SET_NEW_TASK(state, newTask) {

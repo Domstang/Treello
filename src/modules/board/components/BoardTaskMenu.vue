@@ -32,30 +32,36 @@
               >Modifier le titre</v-card-title
             >
             <v-divider></v-divider>
+            <div v-if="titleIsEmpty">
+              <v-alert
+                dismissible
+                v-model="titleIsEmpty"
+                @click="titleIsEmpty = false"
+                dense
+                icon="mdi-alert-outline"
+                type="warning"
+              >
+                Merci d'indiquer un titre
+              </v-alert>
+            </div>
             <v-text-field
               v-model="titleUpdated"
-              outlined
+              filled
               dense
               clearable
-              background-color="#fff"
               :placeholder="card.title"
               @keydown.enter.exact.prevent="updateTitle(titleUpdated)"
               data-no-dragscroll
             ></v-text-field>
             <div class="text-center">
-              <v-btn
-                class="ma-1"
-                small
-                plain
-                text
-                @click="inputTitleMenu = false"
+              <v-btn class="ma-1" small plain text @click.stop="cancel()"
                 >Annuler</v-btn
               >
               <v-btn
                 class="ma-1"
                 small
                 color="primary"
-                @click="updateTitle(titleUpdated)"
+                @click.prevent="updateTitle(titleUpdated)"
                 >Enregistrer</v-btn
               >
             </div>
@@ -102,7 +108,7 @@
             class="btn-menu"
             color="#000000cb"
             :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
-            @click.stop="alert = true"
+            @click.stop="removeAlert = true"
           >
             <v-icon small v-text="deleteTask.icon"></v-icon>
             {{ deleteTask.text }}
@@ -110,19 +116,19 @@
         </v-hover>
       </v-col>
     </v-row>
-    <div v-if="alert">
+    <div v-if="removeAlert">
       <v-alert type="info">
         Êtes-vous sûr de vouloir supprimer cette carte ? Cette action est
         définitive !
         <div class="text-center mt-3">
-          <v-btn class="ma-1" small plain text @click="alert = false"
+          <v-btn class="ma-1" small plain text @click.stop="removeAlert = false"
             >Annuler</v-btn
           >
           <v-btn
             class="ma-1"
             small
             color="error"
-            @click="removeTask(cardUniqueId)"
+            @click.prevent="removeTask(cardUniqueId)"
             >Supprimer</v-btn
           >
         </div>
@@ -146,7 +152,9 @@ export default {
     deleteTask: { text: "Supprimer la tâche", icon: "mdi-trash-can-outline" },
     inputTitleMenu: false,
     titleUpdated: "",
-    alert: false,
+    titleIsEmpty: false,
+    removeAlert: false,
+    updateTitleAlert: false,
   }),
   props: {
     cardUniqueId: {
@@ -164,12 +172,20 @@ export default {
   methods: {
     updateTitle(titleUpdated) {
       if (!titleUpdated) {
-        return;
+        this.titleUpdated = this.card.title;
+        this.titleIsEmpty = true;
+        setTimeout(() => {
+          this.titleIsEmpty = false;
+        }, 5000);
       } else {
         this.card.title = titleUpdated;
         this.$store.dispatch("boardTasks/updateTask", this.card);
         this.inputTitleMenu = false;
       }
+    },
+    cancel() {
+      this.titleUpdated = this.card.title;
+      this.inputTitleMenu = false;
     },
     addLabel(color) {
       this.$emit("add-label-color", { color: color, id: this.cardUniqueId });

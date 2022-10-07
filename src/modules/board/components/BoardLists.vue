@@ -1,5 +1,5 @@
 <template>
-  <v-row align="start" justify="start" class="d-flex flex-nowrap main-row">
+  <v-row justify="start" class="d-flex flex-nowrap main-row">
     <v-overlay :value="overlay" opacity="0.6" @click="closeOverlay"></v-overlay>
     <draggable
       v-model="lists"
@@ -15,6 +15,7 @@
             @show-overlay="showOverlay"
             @close-overlay="closeOverlay"
             @update-list-title="updateListTitle"
+            @remove-list="removeList"
             :list="list"
           />
           <board-tasks
@@ -22,8 +23,6 @@
             :newTask="cards"
             @show-overlay="showOverlay"
             @close-overlay="closeOverlay"
-            @update-task="updateTask"
-            @update-tasks-order="updateTasksOrder"
             @remove-task="removeTask"
           />
           <board-add-task
@@ -83,9 +82,6 @@ export default {
     },
   },
   methods: {
-    addNewTask(val) {
-      this.cards.push(val);
-    },
     updateListTitle(title) {
       this.$store.dispatch("boardLists/updateList", title);
     },
@@ -100,31 +96,15 @@ export default {
         };
         newOrder.push(data);
       });
-      console.log("newOrder : ", newOrder);
       this.$store.dispatch("boardLists/updateListOrder", newOrder);
     },
-    updateTask() {
-      this.$store.dispatch("boardTasks/updateTask", this.cards);
-    },
-    async updateTasksOrder() {
-      const newOrder = [];
-      const oldOrder = this.cards.forEach(function (item, index) {
-        let data = {
-          userId: auth.currentUser.uid,
-          uniqueId: item?.uniqueId,
-          title: item?.title,
-          label: item?.label,
-          listId: item?.listId,
-          labelColor: item?.labelColor,
-          position: index,
-        };
-        newOrder.push(data);
-      });
-      this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
-    },
-    removeTask(id) {
+    async removeTask(id) {
       let cards = this.getAllTasks;
-      this.$store.dispatch("boardTasks/removeTask", { cards, id });
+      await this.$store.dispatch("boardTasks/removeTask", { cards, id });
+    },
+    async removeList(id) {
+      let cards = this.getAllTasks;
+      await this.$store.dispatch("boardLists/removeList", { cards, id });
     },
     showOverlay() {
       this.overlay = true;

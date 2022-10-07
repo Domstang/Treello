@@ -13,7 +13,7 @@
     data-no-dragscroll
     >
     <transition-group tag="div" type="transition" name="flip-list">
-      <div v-for="(card, index) in getAllTasks" :key="index">
+      <div v-for="card in getAllTasks" :key="card.uniqueId">
         <div
           data-no-dragscroll
           class="list-group-item"
@@ -179,9 +179,6 @@ export default {
       card.labelColor = label.color;
       this.$store.dispatch("boardTasks/updateTask", card);
     },
-    updateTask() {
-      this.$store.dispatch("boardTasks/updateTask", this.getAllTasks);
-    },
     getNewIndex(cards) {
       this.newCardsOrder = cards;
     },
@@ -191,7 +188,7 @@ export default {
         let currentOrder = this.newCardsOrder.filter(
           (el) => el.listId === currentListId
         );
-        let oldOrder = currentOrder.forEach(function (item, index) {
+        currentOrder.forEach(function (item, index) {
           let data = {
             userId: auth.currentUser.uid,
             uniqueId: item?.uniqueId,

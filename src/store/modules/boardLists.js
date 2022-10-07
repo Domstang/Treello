@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { listsCollection, auth, storage } from "@/firebase";
+import { listsCollection, tasksCollection, auth, storage } from "@/firebase";
 
 const state = {
   newList: "",
@@ -82,23 +82,34 @@ const actions = {
       throw 'A server error has occurred';
     }
   },
-  /* async removeList({ commit }, taskToRemove ) {
+  async removeList({ commit }, listToRemove ) {
     try {
-      let card = listToRemove.cards.find((el) => el.uniqueId === taskToRemove.id);
-      const querySnapshot = await listsCollection
+      let cardsToRemove = listToRemove.cards.filter((el) => el.listId === listToRemove.id);
+        await tasksCollection
         .where("userId", "==", auth.currentUser.uid)
         .get()
         .then((snapshots) => {
           snapshots.forEach((doc) => {
-            if (doc.data().uniqueId === card.uniqueId) {
+            if (doc.data().listId === listToRemove.id) {
               doc.ref.delete();
             }
           });
         });
+        await listsCollection
+        .where("userId", "==", auth.currentUser.uid)
+        .get()
+        .then((snapshots) => {
+          snapshots.forEach((doc) => {
+            if (doc.data().listId === listToRemove) {
+              console.log('hello')
+            }
+          });
+        });
+        /* commit('SET_REMOVE_LIST', cardsToRemove); */
     } catch (error) {
       throw 'A server error has occurred';
     }
-  }, */
+  },
 };
 
 const mutations = {
@@ -109,12 +120,10 @@ const mutations = {
     const index = state.lists.length;
     Vue.set(state.lists, index, newList);
   },
-  setUpdatedList(state, updatedList) {
-    state.newList = updatedList;
-  },
-  setUpdatedListsOrder(state, updatedListsOrder) {
-    state.newList = updatedListsOrder;
-  }
+  /* SET_REMOVE_LIST(state, listToRemove) {
+    const index = state.tasks.findIndex(el => el.uniqueId === listToRemove.uniqueId)
+    Vue.delete(state.tasks, index);
+  } */
 };
 
 

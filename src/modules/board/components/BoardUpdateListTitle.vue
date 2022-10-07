@@ -15,9 +15,9 @@
         <div v-if="isMenuVisible">
           <board-list-menu
             :listId="list.listId"
-            @close-overlay="closeOverlay"
-            @close-menu="closeListModal"
-            @remove-task="removeList"
+            :list="list"
+            @close-menu="closeMenu"
+            @remove-list="removeList"
           />
         </div>
       </v-menu>
@@ -71,10 +71,17 @@ export default {
       this.$emit('show-overlay')
       this.isMenuVisible = true;
     },
+    removeList(listId) {
+      this.$emit('remove-list', listId)
+    },
     onClickOutside() {
       this.list.title = this.previousTitle;
       this.showHeaderInput = false;
     },
+    closeMenu() {
+      this.isMenuVisible = false;
+      this.$emit('close-overlay')
+    }
   },
 };
 </script>

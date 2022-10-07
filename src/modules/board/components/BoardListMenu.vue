@@ -5,15 +5,80 @@
     >
     <v-row class="row-buttons">
       <v-col sm="4">
+        <v-menu
+          v-model="inputTitleMenu"
+          :close-on-content-click="false"
+          offset-y
+        >
+          <template v-slot:activator="{ attrs, on }">
+            <v-hover v-slot="{ hover }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                small
+                dark
+                class="btn-menu"
+                color="#000000cb"
+                :style="{
+                  'background-color': hover ? '#0a69c8d1' : '#000000cb',
+                }"
+              >
+                <v-icon small v-text="title.icon"></v-icon>
+                {{ title.text }}
+              </v-btn>
+            </v-hover>
+          </template>
+
+          <v-card class="color-label-card">
+            <v-card-title class="color-label-title"
+              >Modifier le titre</v-card-title
+            >
+            <v-divider></v-divider>
+            <div v-if="titleIsEmpty">
+              <v-alert
+                dismissible
+                v-model="titleIsEmpty"
+                @click="titleIsEmpty = false"
+                dense
+                icon="mdi-alert-outline"
+                type="warning"
+              >
+                Merci d'indiquer un titre
+              </v-alert>
+            </div>
+            <v-text-field
+              v-model="titleUpdated"
+              filled
+              dense
+              clearable
+              :placeholder="list.title"
+              @keydown.enter.exact.prevent="updateTitle(titleUpdated)"
+              data-no-dragscroll
+            ></v-text-field>
+            <div class="text-center">
+              <v-btn class="ma-1" small plain text @click.stop="cancel()"
+                >Annuler</v-btn
+              >
+              <v-btn
+                class="ma-1"
+                small
+                color="primary"
+                @click.prevent="updateTitle(titleUpdated)"
+                >Enregistrer</v-btn
+              >
+            </div>
+          </v-card>
+        </v-menu>
         <v-hover v-slot="{ hover }">
           <v-btn
             small
             dark
             color="#000000cb"
             :style="{ 'background-color': hover ? '#0a69c8d1' : '#000000cb' }"
+            @click.stop="removeList(listId)"
           >
-            <v-icon small v-text="title.icon"></v-icon>
-            {{ title.text }}
+            <v-icon small v-text="deleteList.icon"></v-icon>
+            {{ deleteList.text }}
           </v-btn>
         </v-hover>
       </v-col>
@@ -23,17 +88,45 @@
 <script>
 export default {
   data: () => ({
-    title: { text: "Supprimer cette liste", icon: "mdi-trash-can-outline" }
+    title: { text: "Modifier le titre", icon: "mdi-pencil-outline" },
+    deleteList: { text: "Supprimer cette liste", icon: "mdi-trash-can-outline" },
+    inputTitleMenu: false,
+    titleUpdated: "",
+    titleIsEmpty: false
   }),
   props: {
-    cardUniqueId: {
+    listId: {
       type: String,
       require: true,
     },
+    list: {
+      type: Object,
+      require: true,
+    },
+  },
+  mounted() {
+    this.titleUpdated = this.list.title;
   },
   methods: {
+    updateTitle(titleUpdated) {
+      if (!titleUpdated) {
+        this.titleUpdated = this.list.title;
+        this.titleIsEmpty = true;
+        setTimeout(() => {
+          this.titleIsEmpty = false;
+        }, 5000);
+      } else {
+        this.list.title = titleUpdated;
+        this.$store.dispatch("boardLists/updateList", this.list);
+        this.inputTitleMenu = false;
+      }
+    },
+    cancel() {
+      this.titleUpdated = this.list.title;
+      this.inputTitleMenu = false;
+    },
     removeList(id) {
-      this.$emit("remove-task", id);
+      this.$emit("remove-list", id);
     },
     closeMenu() {
       this.$emit("close-menu");

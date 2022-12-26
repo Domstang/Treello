@@ -5,6 +5,13 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import VueEventBus from "vue-plugin-event-bus"; 
 import { auth } from './firebase'
+// import plugin
+import VueToastr from "vue-toastr";
+// use plugin
+Vue.use(VueToastr, {
+  /* OverWrite Plugin Options if you need */
+});
+
 
 Vue.use(VueEventBus);
 

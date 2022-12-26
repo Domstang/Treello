@@ -21,6 +21,7 @@ const store = new Vuex.Store({
   state: {
     userProfile: {},
     isAuthenticated: false,
+    badLogin: false
   },
   getters: {
     getIsAuthenticated: (state) => {
@@ -28,6 +29,9 @@ const store = new Vuex.Store({
     },
     getUserProfile: (state) => {
       return state.userProfile;
+    },
+    getBadLogin: (state) => {
+      return state.badLogin;
     }
   },
   actions: {
@@ -45,11 +49,17 @@ const store = new Vuex.Store({
         dispatch('fetchUserProfile', user)
       })
     },
-    async login({ dispatch }, form) {
-      // sign in user
-      const { user } = await fb.auth.signInWithEmailAndPassword(form.email, form.password)
+    async login({ dispatch, commit }, form) {
+      try {
+        // sign in user
+        const { user } = await fb.auth.signInWithEmailAndPassword(form.email, form.password)
       
-      dispatch('fetchUserProfile', user)
+        dispatch('fetchUserProfile', user)
+      } catch (e) {
+        const ERROR = JSON.parse(JSON.stringify(e))
+        commit('WRONG_IDENTIFIERS', ERROR)
+      }
+      
     },
     async fetchUserProfile({ commit }, user) {
       // fetch user profile
@@ -62,7 +72,7 @@ const store = new Vuex.Store({
           userProfile = auth.currentUser
         })
         // set user profile
-        commit('setUserProfile', userProfile)
+        commit('SET_USER_PROFILE', userProfile)
         if(user !== undefined) {
           // change route or redirect
           router.push('/board')
@@ -73,17 +83,26 @@ const store = new Vuex.Store({
         }
       }
     },
+    resetBadLogin({ commit }){
+      commit('RESET_BAD_LOGIN')
+    },
     async logout({ commit }) {
       await fb.auth.signOut()
-      commit('setUserProfile', {})
+      commit('SET_USER_PROFILE', {})
       router.push('/')
     }
   },
   mutations: {
-    setUserProfile(state, val, authState) {
+    SET_USER_PROFILE(state, val, authState) {
       state.isAuthenticated = !state.isAuthenticated
       state.userProfile = val
-    }
+    },
+    WRONG_IDENTIFIERS(state) {
+      state.badLogin = true
+    },
+    RESET_BAD_LOGIN(state) {
+      state.badLogin = false
+    },
   },
   modules: NAMESPACES,
 });

@@ -1,4 +1,5 @@
 <template>
+  <div v-if="getAllTasks && getAllTasks.length > 0">
   <draggable
     class="list-group"
     ghost-class="ghost"
@@ -12,6 +13,7 @@
     @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
     >
+  
     <transition-group tag="div" type="transition" name="flip-list">
       <div v-for="card in getAllTasks" :key="card.uniqueId">
         <div
@@ -71,6 +73,7 @@
       </div>
     </transition-group>
   </draggable>
+</div>
 </template>
 <script>
 import draggable from "vuedraggable";

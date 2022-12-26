@@ -88,11 +88,23 @@
     <v-col md="4">
       <v-card flat>
         <v-card-title>Connectez-vous pour utiliser Treello</v-card-title>
-        <v-card-subtitle class="subtitle">Compte de démo :
-          <v-icon size="17" class="mr-1">mdi-email</v-icon><span class="mr-2">{{ defaultEmail }}</span>
-          <v-icon size="17" class="mr-1">mdi-lock</v-icon><span>{{ defaultPass }}</span><br>
+        <v-card-subtitle class="subtitle"
+          >Compte de démo : <v-icon size="17" class="mr-1">mdi-email</v-icon
+          ><span class="mr-2">{{ defaultEmail }}</span>
+          <v-icon size="17" class="mr-1">mdi-lock</v-icon
+          ><span>{{ defaultPass }}</span
+          ><br />
         </v-card-subtitle>
-        <v-btn x-small outlined text color="blue-grey" class="ml-4" @click.prevent="fillForm"><v-icon size="16" class="pr-1">mdi-file-document-edit-outline</v-icon>pré-remplir</v-btn>
+        <v-btn
+          x-small
+          outlined
+          text
+          color="blue-grey"
+          class="ml-4"
+          @click.prevent="fillForm"
+          ><v-icon size="16" class="pr-1">mdi-file-document-edit-outline</v-icon
+          >pré-remplir</v-btn
+        >
         <v-card-text>
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-text-field
@@ -141,6 +153,10 @@
 </template>
 
 <script>
+import Vue from "vue";
+import VueToastr from "vue-toastr";
+Vue.component("vue-toastr", VueToastr);
+
 export default {
   data() {
     return {
@@ -152,16 +168,25 @@ export default {
       email: "",
       password: "",
       emailRules: [
-        (v) => !!v || "Email is required",
-        (v) => /.+@.+/.test(v) || "Email must be valid",
+        (v) => !!v || "L'email est requis",
+        (v) => /.+@.+/.test(v) || "L'email doit être valide",
       ],
       passwordRules: [
-        (v) => !!v || "Password is required",
-        (v) => v.length >= 8 || "Password must be 8 characters or more",
+        (v) => !!v || "Le mot de passe est requis",
+        (v) => v.length >= 8 || "Le mot de passe doit contenir 8 caractères ou plus",
       ],
     };
   },
-  computed: {},
+  computed: {
+    getBadLogin() {
+      return this.$store.getters.getBadLogin;
+    },
+  },
+  watch: {
+    getBadLogin(newValue) {
+      if (newValue) this.badLogin();
+    },
+  },
   methods: {
     login() {
       const valid = this.$refs.form.validate();
@@ -176,7 +201,20 @@ export default {
     fillForm() {
       this.email = this.defaultEmail;
       this.password = this.defaultPass;
-    }
+    },
+    badLogin() {
+      this.isLoading = false;
+      this.$toastr.w({
+        title: "Email ou Mot de passe incorrect",
+        msg: "",
+        position: "toast-top-center",
+        type: "warning",
+        timeout: 5000,
+        progressbar: false,
+        style: { "background-color": "#e02f2f", "font-family": "Roboto" },
+      });
+      this.$store.dispatch("resetBadLogin");
+    },
   },
 };
 </script>
@@ -234,7 +272,7 @@ export default {
   left: 0;
   bottom: 0;
 }
-.input-pass{
+.input-pass {
   margin-bottom: 0 !important;
 }
 .v-card {

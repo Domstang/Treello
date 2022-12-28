@@ -193,26 +193,26 @@ export default {
   transform: translateY(5px);
 }
 .background {
-  background: rgb(0, 63, 95);
+  background: rgb(1, 44, 76);
   background: -moz-linear-gradient(
     90deg,
-    rgba(0, 63, 95, 1) 0%,
-    rgba(0, 104, 178, 1) 500px,
-    rgba(0, 104, 178, 1) 10%,
+    rgba(1, 44, 76, 1) 0%,
+    rgba(6, 55, 92, 1) 500px,
+    rgba(6, 55, 92, 1) 10%,
     rgba(255, 255, 255, 1) 10%
   );
   background: -webkit-linear-gradient(
     90deg,
-    rgba(0, 63, 95, 1) 0%,
-    rgba(0, 104, 178, 1) 500px,
-    rgba(0, 104, 178, 1) 10%,
+    rgba(1, 44, 76, 1) 0%,
+    rgba(6, 55, 92, 1) 500px,
+    rgba(6, 55, 92, 1) 10%,
     rgba(255, 255, 255, 1) 10%
   );
   background: linear-gradient(
     90deg,
-    rgba(0, 63, 95, 1) 0%,
-    rgba(0, 104, 178, 1) 500px,
-    rgba(0, 104, 178, 1) 10%,
+    rgba(1, 44, 76, 1) 0%,
+    rgba(6, 55, 92, 1) 500px,
+    rgba(6, 55, 92, 1) 10%,
     rgba(255, 255, 255, 1) 10%
   );
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#003f5f",endColorstr="#ffffff",GradientType=1);

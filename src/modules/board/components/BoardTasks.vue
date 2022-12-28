@@ -13,9 +13,8 @@
     @end="getNewIndex(getAllTasks)"
     data-no-dragscroll
     >
-  
     <transition-group tag="div" type="transition" name="flip-list">
-      <div v-for="card in getAllTasks" :key="card.uniqueId">
+      <div v-for="(card, i) in getAllTasks" :key="card.uniqueId+i">
         <div
           data-no-dragscroll
           class="list-group-item"
@@ -116,6 +115,7 @@ export default {
     cardsPerList: "",
     listIdFromStart: "",
     transitionId: "",
+    test: 123
   }),
   async mounted() {
     await this.$store.dispatch("boardTasks/fetchAllTasks");
@@ -129,10 +129,9 @@ export default {
   computed: {
     ...mapGetters({
       getAllTasks: "boardTasks/getAllTasks",
-      getNewTask: "boardTasks/getNewTask",
-    }),
+      getNewTask: "boardTasks/getNewTask"
+    })
   },
-
   methods: {
     checkMove(evt) {
       this.newListId = evt.relatedContext.component.$el.id;
@@ -149,7 +148,7 @@ export default {
         let cardCopy = JSON.parse(JSON.stringify(card));
         cardCopy.listId = this.newListId;
         this.updateTasksOrder(cardCopy.listId)
-        await this.$store.dispatch("boardTasks/moveTaskInAnotherList", { cardCopy, cardIndex});
+        await this.$store.dispatch("boardTasks/moveTaskInAnotherList", { cardCopy, cardIndex});     
       } else {
           return
       }
@@ -191,6 +190,7 @@ export default {
         let currentOrder = this.newCardsOrder.filter(
           (el) => el.listId === currentListId
         );
+        console.log("🚀 ~ setTimeout ~ currentOrder", currentOrder.length)
         currentOrder.forEach(function (item, index) {
           let data = {
             userId: auth.currentUser.uid,
@@ -199,11 +199,13 @@ export default {
             label: item?.label,
             listId: item?.listId,
             labelColor: item?.labelColor,
-            position: currentOrder.length++,
+            position: ++currentOrder.length,
           };
           newOrder.push(data);
         });
-        newOrder.filter((el) => el.listId === currentListId);
+        newOrder.filter((el) => {
+          return el.listId === currentListId
+        })
         this.$store.dispatch("boardTasks/updateTaskOrder", newOrder);
       }, 500);
     },
